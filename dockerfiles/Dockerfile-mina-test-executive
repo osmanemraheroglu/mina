@@ -4,6 +4,8 @@ FROM ${image}
 ARG deb_version
 ARG deb_release=unstable
 ARG deb_codename=bullseye
+ARG deb_profile=devnet
+ARG profile=devnet
 ARG MINA_BRANCH
 ARG MINA_REPO=https://github.com/MinaProtocol/mina
 

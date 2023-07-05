@@ -29,7 +29,7 @@ esac
 
 echo "--- Building Mina archive package"
 
-PROJECT="mina-archive"
+PROJECT="mina-archive-${DUNE_PROFILE}"
 BUILD_DIR="deb_build"
 
 ###### archiver deb
