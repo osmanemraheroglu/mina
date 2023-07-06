@@ -18,8 +18,8 @@ fi
   --mina-automation-location ./automation \
   | tee "$TEST_NAME.test.log" \
   | ./logproc.exe -i inline -f '!(.level in ["Debug", "Spam"])' 
-  || EXIT_CODE=$?
 
+EXIT_CODE="$?"
 
 ./upload-test-results.sh ${testName}
 
