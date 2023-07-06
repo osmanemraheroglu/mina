@@ -48,12 +48,12 @@ in
               Cmd.run "artifact-cache-helper.sh test_reporter.exe && chmod +x test_reporter.exe",
 
               -- Execute test based on BUILD image
-              Cmd.run "MINA_DEB_CODENAME=bullseye ; source ./buildkite/scripts/export-git-env-vars.sh && ./buildkite/scripts/run-test-executive.sh ${testName} && ls -al && ls -al ./buildkite/scripts && ./buildkite/scripts/upload-test-results.sh ${testName} "
+              Cmd.run "MINA_DEB_CODENAME=bullseye ; source ./buildkite/scripts/export-git-env-vars.sh && ./buildkite/scripts/run-test-executive.sh ${testName} -upload"
             ],
         artifact_paths = 
             [
-              SelectFiles.contains "${testName}",
-              SelectFiles.contains "test_result"
+              SelectFiles.exactly "../../" "${testName}.test.log",
+              SelectFiles.exactly "../../" "${testName}.junit.xml"
             ],
         label = "${testName} integration test",
         key = "integration-test-${testName}",
