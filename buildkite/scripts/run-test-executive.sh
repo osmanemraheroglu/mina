@@ -21,6 +21,6 @@ fi
 
 EXIT_CODE="$?"
 
-./buildkite/scripts/upload-test-results.sh ${testName}
+./buildkite/scripts/upload-test-results.sh $TEST_NAME
 
 exit ${EXIT_CODE}
