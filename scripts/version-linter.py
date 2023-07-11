@@ -20,13 +20,13 @@ def branch_commit(branch):
 
 def download_type_shapes(role,branch,sha1) :
   file=type_shape_file(sha1)
-  result=subprocess.run(['wget' ,f'https://storage.googleapis.com/mina-type-shapes/{file}'])
   print ('Downloading type shape file',file,'for',role,'branch',branch,'at commit',sha1)
+  result=subprocess.run(['wget' ,f'https://storage.googleapis.com/mina-type-shapes/{file}'])
 
 def type_shape_file(sha1) :
   # created by buildkite build-artifact script
   # loaded to cloud bucket
-  sha1 + '-type-shapes.txt'
+  return sha1 + '-type_shape.txt'
 
 def make_type_shape_dict(type_shape_file):
   shape_dict=dict()
