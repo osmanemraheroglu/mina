@@ -14,11 +14,12 @@ def set_error():
   exit_code=1
 
 def branch_commit(branch):
-  print ('Retrieving', branch, 'head commit')
+  print ('Retrieving', branch, 'head commit...')
   result=subprocess.run(['git','log','-n','1','--format="%h"','--abbrev=7','--no-merges',f'{branch}'],
                         capture_output=True)
   output=result.stdout.decode('ascii')                        
-  print ('git log output:', output)                     
+  print ('command stdout:', output)
+  print ('command stderr:', result.stderr.decode('ascii'))
   return output.replace('"','').replace('\n','')
 
 def download_type_shapes(role,branch,sha1) :
