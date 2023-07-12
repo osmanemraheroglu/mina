@@ -11,7 +11,7 @@ fi
 export DEBIAN_FRONTEND=noninteractive
 
 sudo apt-get update
-sudo apt-get install -y git apt-transport-https ca-certificates tzdata curl
+sudo apt-get install -y git apt-transport-https ca-certificates tzdata curl sexpdata
 
 TESTNET_NAME="berkeley"
 
@@ -31,7 +31,7 @@ echo "--- Create type shapes git note for commit: ${MINA_COMMIT_SHA1:0:7}"
 mina internal dump-type-shapes > ${TYPE_SHAPE_FILE}
 
 echo "--- Uploading ${TYPE_SHAPE_FILE} to mina-type-shapes bucket for consumption by the version linter"
-gcloud storage cp ${TYPE_SHAPE_FILE} gs://mina-type-shapes
+gsutil cp ${TYPE_SHAPE_FILE} gs://mina-type-shapes/${TYPE_SHAPE_FILE}
 
 base_branch=origin/${BUILDKITE_PULL_REQUEST_BASE_BRANCH}
 pr_branch=origin/${BUILDKITE_BRANCH}
