@@ -28,7 +28,7 @@ MINA_COMMIT_SHA1=$(git log -n 1 --format=%h --abbrev=7 --no-merges)
 TYPE_SHAPE_FILE=${MINA_COMMIT_SHA1}-type_shape.txt
 
 echo "--- Create type shapes git note for commit: ${MINA_COMMIT_SHA1}"
-./mina internal dump-type-shapes > ${TYPE_SHAPE_FILE}
+mina internal dump-type-shapes > ${TYPE_SHAPE_FILE}
 
 echo "--- Uploading ${TYPE_SHAPE_FILE} to mina-type-shapes bucket for consumption by the version linter"
 gsutil cp ${TYPE_SHAPE_FILE} gs://mina-type-shapes/${TYPE_SHAPE_FILE}
