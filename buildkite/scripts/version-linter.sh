@@ -11,7 +11,7 @@ fi
 export DEBIAN_FRONTEND=noninteractive
 
 sudo apt-get update
-sudo apt-get install -y git apt-transport-https ca-certificates tzdata curl sexpdata
+sudo apt-get install -y git apt-transport-https ca-certificates tzdata curl python3-sexpdata
 
 TESTNET_NAME="berkeley"
 
