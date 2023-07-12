@@ -37,7 +37,7 @@ Pipeline.build
   Pipeline.Config::{
     spec =
       let lintDirtyWhen = [
-        S.strictlyStart (S.contains "src/lib"),
+        S.strictlyStart (S.contains "src"),
         S.exactly "buildkite/src/Jobs/Test/VersionLint" "dhall",
         S.exactly "buildkite/scripts/version_linter" "sh"
       ]
