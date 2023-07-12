@@ -33,9 +33,9 @@ mina internal dump-type-shapes > ${TYPE_SHAPE_FILE}
 echo "--- Uploading ${TYPE_SHAPE_FILE} to mina-type-shapes bucket for consumption by the version linter"
 gcloud storage cp ${TYPE_SHAPE_FILE} gs://mina-type-shapes
 
-base_branch=${BUILDKITE_PULL_REQUEST_BASE_BRANCH}
-pr_branch=${BUILDKITE_BRANCH}
-release_branch=$1
+base_branch=origin/${BUILDKITE_PULL_REQUEST_BASE_BRANCH}
+pr_branch=origin/${BUILDKITE_BRANCH}
+release_branch=origin/$1
 
 echo "--- Run Python version linter with branches: ${pr_branch} ${base_branch} ${release_branch}"
 ./scripts/version-linter.py ${pr_branch} ${base_branch} ${release_branch}
