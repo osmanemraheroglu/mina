@@ -26,10 +26,9 @@ sudo apt-get install --allow-downgrades -y "mina-${TESTNET_NAME}=${MINA_DEB_VERS
 
 MINA_COMMIT_SHA1=$(git rev-parse HEAD)
 TYPE_SHAPE_FILE=${MINA_COMMIT_SHA1:0:7}-type_shape.txt
-MAX_DEPTH=12
 
 echo "--- Create type shapes git note for commit: ${MINA_COMMIT_SHA1:0:7}"
-mina internal dump-type-shapes --max-depth ${MAX_DEPTH} > ${TYPE_SHAPE_FILE}
+mina internal dump-type-shapes > ${TYPE_SHAPE_FILE}
 
 echo "--- Uploading ${TYPE_SHAPE_FILE} to mina-type-shapes bucket for consumption by the version linter"
 gcloud storage cp ${TYPE_SHAPE_FILE} gs://mina-type-shapes
