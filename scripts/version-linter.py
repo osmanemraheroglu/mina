@@ -4,10 +4,15 @@
 
 import subprocess
 import os
+import io
 import sys
 import re
+import sexpdata
 
 exit_code=0
+
+# type shape truncation depth
+max_depth = 12
 
 def set_error():
   global exit_code
@@ -17,7 +22,7 @@ def branch_commit(branch):
   print ('Retrieving', branch, 'head commit...')
   result=subprocess.run(['git','log','-n','1','--format="%h"','--abbrev=7','--no-merges',f'{branch}'],
                         capture_output=True)
-  output=result.stdout.decode('ascii')                        
+  output=result.stdout.decode('ascii')
   print ('command stdout:', output)
   print ('command stderr:', result.stderr.decode('ascii'))
   return output.replace('"','').replace('\n','')
@@ -32,6 +37,20 @@ def type_shape_file(sha1) :
   # loaded to cloud bucket
   return sha1 + '-type_shape.txt'
 
+# truncate type shapes to avoid false positives
+def truncate_type_shape (sexp) :
+  def truncate_at_depth (sexp,curr_depth) :
+    if curr_depth >= max_depth :
+      return sexpdata.Symbol('.')
+    else :
+      if isinstance(sexp,list) :
+        return list(map(lambda item : truncate_at_depth (item,curr_depth+1),sexp))
+      else :
+        return sexp
+  fp = io.StringIO()
+  sexpdata.dump(truncate_at_depth(sexp,0),fp)
+  return fp.getvalue ()
+
 def make_type_shape_dict(type_shape_file):
   shape_dict=dict()
   with open(type_shape_file) as file :
@@ -41,7 +60,7 @@ def make_type_shape_dict(type_shape_file):
       fields=entry.split(', ')
       path=fields[0]
       digest=fields[1]
-      shape=fields[2]
+      shape=truncate_type_shape(fields[2])
       type_=fields[3]
       shape_dict[path]=[digest,shape,type_]
   return shape_dict
