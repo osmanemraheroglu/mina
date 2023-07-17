@@ -31,6 +31,9 @@ echo "--- Create type shapes git note for commit: ${MINA_COMMIT_SHA1}"
 mina internal dump-type-shapes > ${TYPE_SHAPE_FILE}
 
 echo "--- Uploading ${TYPE_SHAPE_FILE} to mina-type-shapes bucket for consumption by the version linter"
+
+# Force use accont with permissions to write to out bucket
+gcloud config set account buildkite-gke-central1@o1labs-192920.iam.gserviceaccount.com
 gsutil cp ${TYPE_SHAPE_FILE} gs://mina-type-shapes/${TYPE_SHAPE_FILE}
 
 base_branch=origin/${BUILDKITE_PULL_REQUEST_BASE_BRANCH}
