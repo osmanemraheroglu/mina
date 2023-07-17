@@ -58,7 +58,7 @@ let proof_config_default : Runtime_config.Proof_keys.t =
   ; sub_windows_per_window = None
   ; ledger_depth = None
   ; work_delay = None
-  ; block_window_duration_ms = Some 120000
+  ; block_window_duration_ms = Some 20000
   ; transaction_capacity = None
   ; coinbase_amount = None
   ; supercharged_coinbase_factor = None
@@ -77,9 +77,9 @@ let default =
   ; num_archive_nodes = 0
   ; log_precomputed_blocks = false (* ; num_plain_nodes = 0 *)
   ; proof_config = proof_config_default
-  ; k = 20
-  ; slots_per_epoch = 3 * 8 * 20
-  ; slots_per_sub_window = 2
+  ; k = 40
+  ; slots_per_epoch = 720
+  ; slots_per_sub_window = 7
   ; delta = 0
   ; txpool_max_size = 3000
   }

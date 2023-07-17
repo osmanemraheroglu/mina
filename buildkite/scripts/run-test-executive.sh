@@ -2,8 +2,8 @@
 set -o pipefail -x
 
 TEST_NAME="$1"
-MINA_IMAGE="gcr.io/o1labs-192920/mina-daemon-devnet:$MINA_DOCKER_TAG-berkeley"
-ARCHIVE_IMAGE="gcr.io/o1labs-192920/mina-archive-devnet:$MINA_DOCKER_TAG"
+MINA_IMAGE="gcr.io/o1labs-192920/mina-daemon-lightnet:$MINA_DOCKER_TAG-berkeley"
+ARCHIVE_IMAGE="gcr.io/o1labs-192920/mina-archive-lightnet:$MINA_DOCKER_TAG"
 
 if [[ "${TEST_NAME:0:15}" == "block-prod-prio" ]] && [[ "$RUN_OPT_TESTS" == "" ]]; then
   echo "Skipping $TEST_NAME"
