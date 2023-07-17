@@ -30,6 +30,8 @@ TYPE_SHAPE_FILE=${MINA_COMMIT_SHA1}-type_shape.txt
 echo "--- Create type shapes git note for commit: ${MINA_COMMIT_SHA1}"
 mina internal dump-type-shapes > ${TYPE_SHAPE_FILE}
 
+
+gcloud auth list 
 echo "--- Uploading ${TYPE_SHAPE_FILE} to mina-type-shapes bucket for consumption by the version linter"
 gcloud storage cp ${TYPE_SHAPE_FILE} gs://mina-type-shapes
 
