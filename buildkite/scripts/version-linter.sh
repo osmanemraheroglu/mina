@@ -34,7 +34,7 @@ echo "--- Uploading ${TYPE_SHAPE_FILE} to mina-type-shapes bucket for consumptio
 
 # Force use accont with permissions to write to out bucket
 gcloud config set account buildkite-gke-central1@o1labs-192920.iam.gserviceaccount.com
-gsutil cp ${TYPE_SHAPE_FILE} gs://mina-type-shapes/${TYPE_SHAPE_FILE}
+gcloud storage cp ${TYPE_SHAPE_FILE} gs://mina-type-shapes
 
 base_branch=origin/${BUILDKITE_PULL_REQUEST_BASE_BRANCH}
 pr_branch=origin/${BUILDKITE_BRANCH}
