@@ -54,7 +54,7 @@ type t =
   }
 
 let proof_config_default : Runtime_config.Proof_keys.t =
-  { level = Some Full
+  { level = Some None
   ; sub_windows_per_window = None
   ; ledger_depth = None
   ; work_delay = None
