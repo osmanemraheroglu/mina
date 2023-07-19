@@ -6,9 +6,9 @@ cd src/lib/crypto/proof-systems
 
 CURR=$(git rev-parse HEAD)
 # temporarily skip SSL verification (for CI)
-#git config http.sslVerify false
+git config http.sslVerify false
 git fetch origin
-#git config http.sslVerify true
+git config http.sslVerify true
 
 
 if [ "${BUILDKITE_PULL_REQUEST_BASE_BRANCH}" = "" ]; then
@@ -24,7 +24,7 @@ declare -A BRANCH_MAPPING=(
   ["develop"]="develop"
   ["izmir"]="master"
   # Default case
-  [${BUILDKITE_PULL_REQUEST_BASE_BRANCH}]=${BUILDKITE_PULL_REQUEST_BASE_BRANCH}
+  ["${BUILDKITE_PULL_REQUEST_BASE_BRANCH}"]="${BUILDKITE_PULL_REQUEST_BASE_BRANCH}"
 )
 
 function in_branch {
