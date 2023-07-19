@@ -10,7 +10,6 @@ git config http.sslVerify false
 git fetch origin
 git config http.sslVerify true
 
-
 if [ "${BUILDKITE_PULL_REQUEST_BASE_BRANCH}" = "" ]; then
   echo "BUILDKITE_PULL_REQUEST_BASE_BRANCH env variable is not set. Are you triggered build manually?"
   echo "If yes, then rerun it using custom build with environment variables:"
