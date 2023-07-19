@@ -36,8 +36,7 @@ in  Pipeline.build
             S.exactly "scripts/check-proof-systems-submodule" "sh",
             S.exactly "scripts/compare_ci_diff_types" "sh",
             S.exactly "scripts/compare_ci_diff_binables" "sh",
-            S.exactly "scripts/check-snarky-submodule" "sh",
-            S.strictly (S.containt "")
+            S.exactly "scripts/check-snarky-submodule" "sh"
           ]
         , path = "Lint"
         , name = "Fast"
