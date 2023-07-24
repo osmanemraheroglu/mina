@@ -11,9 +11,9 @@ cd src/lib/crypto/proof-systems
 
 CURR=$(git rev-parse HEAD)
 # temporarily skip SSL verification (for CI)
-#git config http.sslVerify false
+git config http.sslVerify false
 git fetch origin
-#git config http.sslVerify true
+git config http.sslVerify true
 
 
 BRANCH=$1
