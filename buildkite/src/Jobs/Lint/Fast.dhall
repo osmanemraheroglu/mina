@@ -22,7 +22,6 @@ let commands =
       [ Cmd.run "./scripts/lint_codeowners.sh"
       , Cmd.run "./scripts/lint_rfcs.sh"
       , Cmd.run "make check-snarky-submodule"
-      , Cmd.run "make check-proof-systems-submodule"
       , Cmd.run "./scripts/lint_preprocessor_deps.sh"
       ]
 
@@ -33,7 +32,6 @@ in  Pipeline.build
             S.strictly (S.contains "Makefile"),
             S.strictlyStart (S.contains "src/"),
             S.strictlyStart (S.contains "rfcs/"),
-            S.exactly "scripts/check-proof-systems-submodule" "sh",
             S.exactly "scripts/compare_ci_diff_types" "sh",
             S.exactly "scripts/compare_ci_diff_binables" "sh",
             S.exactly "scripts/check-snarky-submodule" "sh"

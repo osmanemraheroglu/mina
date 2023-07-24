@@ -53,6 +53,49 @@ Pipeline.build
           , docker = Some Docker::{
               image = (../../Constants/ContainerImages.dhall).toolchainBase
             }
+        },
+      Command.build
+        Command.Config::{
+          commands = [ Cmd.run "scripts/merged-to-proof-systems.sh compatible"]
+          , label = "[proof-systems] Check merges cleanly into proof-systems compatible"
+          , key = "./merged-to-proof-systems-compatible"
+          , soft_fail = Some (B/SoftFail.Boolean True)
+          , target = Size.Small
+          , docker = Some Docker::{
+              image = (../../Constants/ContainerImages.dhall).toolchainBase
+            }
+        },
+      Command.build
+        Command.Config::{
+          commands = [ Cmd.run "scripts/merged-to-proof-systems.sh berkeley"]
+          , label = "[proof-systems] Check merges cleanly into berkeley"
+          , key = "./merged-to-proof-systems-berkeley"
+          , target = Size.Small
+          , docker = Some Docker::{
+              image = (../../Constants/ContainerImages.dhall).toolchainBase
+            }
+        },
+      Command.build
+        Command.Config::{
+          commands = [ Cmd.run "scripts/merged-to-proof-systems.sh develop"]
+          , label = "[proof-systems] Check merges cleanly into develop"
+          , key = "./merged-to-proof-systems-develop"
+          , soft_fail = Some (B/SoftFail.Boolean True)
+          , target = Size.Small
+          , docker = Some Docker::{
+              image = (../../Constants/ContainerImages.dhall).toolchainBase
+            }
+        },
+      Command.build
+        Command.Config::{
+          commands = [ Cmd.run "scripts/merged-to-proof-systems.sh main"]
+          , label = "[proof-systems] Check merges cleanly into main"
+          , key = "./merged-to-proof-systems-main"
+          , soft_fail = Some (B/SoftFail.Boolean True)
+          , target = Size.Small
+          , docker = Some Docker::{
+              image = (../../Constants/ContainerImages.dhall).toolchainBase
+            }
         }
     ]
   }
