@@ -57,7 +57,7 @@ Pipeline.build
       Command.build
         Command.Config::{
           commands = [ Cmd.run "scripts/merged-to-proof-systems.sh compatible"]
-          , label = "[proof-systems] Check merges cleanly into proof-systems compatible"
+          , label = "[proof-systems] Check merges cleanly into proof-systems compatible branch"
           , key = "merged-to-proof-systems-compatible"
           , soft_fail = Some (B/SoftFail.Boolean True)
           , target = Size.Small
@@ -68,7 +68,7 @@ Pipeline.build
       Command.build
         Command.Config::{
           commands = [ Cmd.run "scripts/merged-to-proof-systems.sh berkeley"]
-          , label = "[proof-systems] Check merges cleanly into berkeley"
+          , label = "[proof-systems] Check merges cleanly into proof-systems berkeley branch"
           , key = "merged-to-proof-systems-berkeley"
           , target = Size.Small
           , docker = Some Docker::{
@@ -78,7 +78,7 @@ Pipeline.build
       Command.build
         Command.Config::{
           commands = [ Cmd.run "scripts/merged-to-proof-systems.sh develop"]
-          , label = "[proof-systems] Check merges cleanly into develop"
+          , label = "[proof-systems] Check merges cleanly into proof-systems develop branch"
           , key = "merged-to-proof-systems-develop"
           , soft_fail = Some (B/SoftFail.Boolean True)
           , target = Size.Small
@@ -89,7 +89,7 @@ Pipeline.build
       Command.build
         Command.Config::{
           commands = [ Cmd.run "scripts/merged-to-proof-systems.sh main"]
-          , label = "[proof-systems] Check merges cleanly into main"
+          , label = "[proof-systems] Check merges cleanly into proof-systems main branch"
           , key = "merged-to-proof-systems-main"
           , soft_fail = Some (B/SoftFail.Boolean True)
           , target = Size.Small
