@@ -178,8 +178,12 @@ module Make (Inputs : Intf.Test.Inputs_intf) = struct
              ( Wait_condition.blocks_to_be_produced 1
              (* Extend the wait timeout, only 2/3 of stake is online. *)
              |> Wait_condition.with_timeouts
-                  ~soft_timeout:(Network_time_span.Slots 3)
-                  ~hard_timeout:(Network_time_span.Slots 6) )
+                  ~soft_timeout:
+                    (Network_time_span.Literal
+                       (Time.Span.of_ms (15. *. 60. *. 1000.)) )
+                  ~hard_timeout:
+                    (Network_time_span.Literal
+                       (Time.Span.of_ms (30. *. 60. *. 1000.)) ) )
          in
          let%bind () = Node.start ~fresh_state:true node_c in
          [%log info]
