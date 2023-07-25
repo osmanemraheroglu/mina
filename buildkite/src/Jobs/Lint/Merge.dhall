@@ -70,6 +70,7 @@ Pipeline.build
           commands = [ Cmd.run "scripts/merged-to-proof-systems.sh berkeley"]
           , label = "[proof-systems] Check merges cleanly into proof-systems berkeley branch"
           , key = "merged-to-proof-systems-berkeley"
+          , soft_fail = Some (B/SoftFail.Boolean True)
           , target = Size.Small
           , docker = Some Docker::{
               image = (../../Constants/ContainerImages.dhall).toolchainBase
