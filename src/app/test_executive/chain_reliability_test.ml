@@ -65,14 +65,7 @@ module Make (Inputs : Intf.Test.Inputs_intf) = struct
            (Node.id node_c) ;
          let%bind () = wait_for t (Wait_condition.node_to_initialize node_c) in
          wait_for t
-           ( Wait_condition.nodes_to_synchronize [ node_a; node_b; node_c ]
-           |> Wait_condition.with_timeouts
-                ~soft_timeout:
-                  (Network_time_span.Literal
-                     (Time.Span.of_ms (15. *. 60. *. 1000.)) )
-                ~hard_timeout:
-                  (Network_time_span.Literal
-                     (Time.Span.of_ms (30. *. 60. *. 1000.)) ) ) )
+           (Wait_condition.nodes_to_synchronize [ node_a; node_b; node_c ]) )
     in
     let print_chains (labeled_chain_list : (string * string list) list) =
       List.iter labeled_chain_list ~f:(fun labeled_chain ->
@@ -105,9 +98,7 @@ module Make (Inputs : Intf.Test.Inputs_intf) = struct
          () )
     in
     section "common prefix of all nodes is no farther back than 1 block"
-      (* the common prefix test relies on at least 4 blocks having been produced.
-         previous sections altogether have already produced 4, so no further block production is needed.
-         if previous sections change, then this may need to be re-adjusted*)
+      (* the common prefix test relies on at least 4 blocks having been produced.  previous sections altogether have already produced 4, so no further block production is needed.  if previous sections change, then this may need to be re-adjusted*)
       (let%bind (labeled_chains : (string * string list) list) =
          Malleable_error.List.map (Core.String.Map.data all_nodes)
            ~f:(fun node ->
