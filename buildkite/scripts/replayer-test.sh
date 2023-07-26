@@ -3,7 +3,7 @@
 TEST_DIR=/workdir/src/app/replayer/test
 PGPASSWORD=arbitraryduck
 
-set -eo pipefail
+set -eox pipefail
 
 echo "Updating apt, installing packages"
 sudo apt-get update
