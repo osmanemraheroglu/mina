@@ -45,7 +45,7 @@ echo "Generating locale for Postgresql"
 locale-gen en_US.UTF-8
 
 echo "Starting Postgresql service"
-service postgresql start
+sudo service postgresql start
 
 echo "Populating archive database"
 cd ~postgres
