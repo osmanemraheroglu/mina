@@ -12,7 +12,7 @@ let Cmd = ../Lib/Cmds.dhall in
         commands = [
           Cmd.runInDocker
             Cmd.Docker::{
-              image = (../Constants/ContainerImages.dhall).ubuntu2004
+              image = (../Constants/ContainerImages.dhall).minaToolchainBullseye
             }
             "./buildkite/scripts/replayer-test.sh"
         ],
