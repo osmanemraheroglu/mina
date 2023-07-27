@@ -10,6 +10,9 @@ sudo apt-get update
 # Don't prompt for answers during apt-get install
 export DEBIAN_FRONTEND=noninteractive
 
+#remove any existing postgres installation
+sudo apt-get --purge remove postgresql postgresql-*
+
 # time zone = US Pacific
 /bin/echo -e "12\n10" | sudo apt-get install -y tzdata
 sudo apt-get install -y git apt-transport-https ca-certificates curl wget
