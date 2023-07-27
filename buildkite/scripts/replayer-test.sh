@@ -49,8 +49,8 @@ sudo service postgresql start
 
 echo "Populating archive database"
 cd ~postgres
-sudo -u postgres -c psql < $TEST_DIR/archive_db.sql
-echo "ALTER USER postgres PASSWORD '$PGPASSWORD';" | sudo -u postgres -c psql
+sudo -u postgres psql < $TEST_DIR/archive_db.sql
+echo "ALTER USER postgres PASSWORD '$PGPASSWORD';" | sudo -u postgres psql
 cd /workdir
 
 echo "Running replayer"
