@@ -50,6 +50,13 @@ locale-gen en_US.UTF-8
 echo "Starting Postgresql service"
 sudo service postgresql start
 
+
+echo ps -ef 
+
+echo pg_lsclusters
+
+echo "Postgres is up - executing command"
+
 echo "Populating archive database"
 cd ~postgres
 sudo -u postgres psql < $TEST_DIR/archive_db.sql
