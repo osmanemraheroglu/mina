@@ -11,7 +11,7 @@ sudo apt-get update
 export DEBIAN_FRONTEND=noninteractive
 
 #remove any existing postgres installation
-sudo apt-get --purge remove postgresql postgresql-*
+sudo apt-get -y remove postgresql postgresql-*
 
 # time zone = US Pacific
 /bin/echo -e "12\n10" | sudo apt-get install -y tzdata
