@@ -23,6 +23,7 @@
    mina_compile_config
    pickles.backend
    snark_keys_header
+   snark_params
    kimchi_backend.pasta
    kimchi_backend.pasta.basic
    test_util

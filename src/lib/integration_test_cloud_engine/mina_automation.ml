@@ -112,6 +112,7 @@ module Network_config = struct
       =
     let { requires_graphql
         ; genesis_ledger
+        ; epoch_data
         ; block_producers
         ; snark_coordinator
         ; snark_worker_fee
@@ -168,6 +169,19 @@ module Network_config = struct
         String.Map.t =
       String.Map.empty
     in
+    let runtime_timing_of_timing = function
+      | Account.Timing.Untimed ->
+          None
+      | Timed t ->
+          Some
+            { Runtime_config.Accounts.Single.Timed.initial_minimum_balance =
+                t.initial_minimum_balance
+            ; cliff_time = t.cliff_time
+            ; cliff_amount = t.cliff_amount
+            ; vesting_period = t.vesting_period
+            ; vesting_increment = t.vesting_increment
+            }
+    in
     let rec add_accounts mp zip =
       match zip with
       | [] ->
@@ -177,20 +191,7 @@ module Network_config = struct
               , (pk, sk) ) =
             hd
           in
-          let timing =
-            match timing with
-            | Account.Timing.Untimed ->
-                None
-            | Timed t ->
-                Some
-                  { Runtime_config.Accounts.Single.Timed.initial_minimum_balance =
-                      t.initial_minimum_balance
-                  ; cliff_time = t.cliff_time
-                  ; cliff_amount = t.cliff_amount
-                  ; vesting_period = t.vesting_period
-                  ; vesting_increment = t.vesting_increment
-                  }
-          in
+          let timing = runtime_timing_of_timing timing in
           let default = Runtime_config.Accounts.Single.default in
           let acct =
             { default with
@@ -251,7 +252,58 @@ module Network_config = struct
             ; hash = None
             ; name = None
             }
-      ; epoch_data = None
+      ; epoch_data =
+          (* each epoch ledger account must also be a genesis ledger account, though
+             the balance may be different; the converse is not necessarily true, since
+             an account may have been added after the last epoch ledger was taken
+
+             in the epoch ledgers, the accounts must be in the same order as in the
+             genesis ledger; using a String.Map assures the same order
+          *)
+          Option.map epoch_data ~f:(fun { staking; next } ->
+              let ledger_of_test_accounts
+                  (test_accounts : Test_config.Test_Account.t list) =
+                let epoch_ledger_accounts =
+                  List.fold test_accounts ~init:String.Map.empty
+                    ~f:(fun map { account_name; balance; timing } ->
+                      assert (
+                        String.Map.mem genesis_ledger_accounts account_name ) ;
+                      let genesis_account, _keys =
+                        String.Map.find_exn genesis_ledger_accounts account_name
+                      in
+                      let balance = Balance.of_mina_string_exn balance in
+                      let timing = runtime_timing_of_timing timing in
+                      let epoch_ledger_account =
+                        { genesis_account with balance; timing }
+                      in
+                      String.Map.add_exn map ~key:account_name
+                        ~data:epoch_ledger_account )
+                in
+                ( { base = Accounts (String.Map.data epoch_ledger_accounts)
+                  ; add_genesis_winner = None
+                  ; num_accounts = None
+                  ; balances = []
+                  ; hash = None
+                  ; name = None
+                  }
+                  : Runtime_config.Ledger.t )
+              in
+              let staking =
+                let ({ epoch_ledger; epoch_seed }
+                      : Test_config.Epoch_data.Data.t ) =
+                  staking
+                in
+                let ledger = ledger_of_test_accounts epoch_ledger in
+                let seed = epoch_seed in
+                ({ ledger; seed } : Runtime_config.Epoch_data.Data.t)
+              in
+              let next =
+                Option.map next ~f:(fun { epoch_ledger; epoch_seed } ->
+                    let ledger = ledger_of_test_accounts epoch_ledger in
+                    let seed = epoch_seed in
+                    ({ ledger; seed } : Runtime_config.Epoch_data.Data.t) )
+              in
+              ({ staking; next } : Runtime_config.Epoch_data.t) )
       }
     in
     let genesis_constants =
