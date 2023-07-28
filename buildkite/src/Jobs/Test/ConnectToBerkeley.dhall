@@ -6,7 +6,7 @@ let Pipeline = ../../Pipeline/Dsl.dhall
 let ConnectToTestnet = ../../Command/ConnectToTestnet.dhall
 
 let dependsOn = [
-  { name = "MinaArtifactBullseye", key = "daemon-berkeley-bullseye-docker-image" }
+  { name = "MinaArtifactBullseyeDevnet", key = "daemon-berkeley-bullseye-devnet-docker-image" }
 ]
 
 in Pipeline.build Pipeline.Config::{

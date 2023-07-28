@@ -275,11 +275,11 @@ echo "------------------------------------------------------------"
 echo "--- Building Mina Berkeley testnet signatures deb without keys:"
 
 mkdir -p "${BUILDDIR}/DEBIAN"
-create_control_file mina-berkeley "${SHARED_DEPS}${DAEMON_DEPS}" 'Mina Protocol Client and Daemon'
+create_control_file "mina-berkeley-${DUNE_PROFILE}" "${SHARED_DEPS}${DAEMON_DEPS}" 'Mina Protocol Client and Daemon'
 
 copy_common_daemon_configs berkeley testnet 'seed-lists/berkeley_seeds.txt'
 
-build_deb mina-berkeley
+build_deb "mina-berkeley-${DUNE_PROFILE}"
 
 ##################################### END BERKELEY PACKAGE #######################################
 

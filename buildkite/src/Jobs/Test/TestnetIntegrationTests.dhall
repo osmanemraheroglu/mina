@@ -7,14 +7,14 @@ let TestExecutive = ../../Command/TestExecutive.dhall
 
 let dependsOn = [
     { name = "TestnetIntegrationTests", key = "build-test-executive" },
-    { name = "MinaArtifactBullseye", key = "daemon-berkeley-bullseye-docker-image" },
-    { name = "MinaArtifactBullseye", key = "archive-bullseye-docker-image" }
+    { name = "MinaArtifactBullseyeLightnet", key = "daemon-berkeley-bullseye-lightnet-docker-image" },
+    { name = "MinaArtifactBullseyeLightnet", key = "archive-bullseye-lightnet-docker-image" }
 ]
 let dependsOnJs = [
     { name = "TestnetIntegrationTests", key = "build-test-executive" },
     { name = "TestnetIntegrationTests", key = "build-js-tests" },
-    { name = "MinaArtifactBullseye", key = "daemon-berkeley-bullseye-docker-image" },
-    { name = "MinaArtifactBullseye", key = "archive-bullseye-docker-image" }
+    { name = "MinaArtifactBullseyeLightnet", key = "daemon-berkeley-bullseye-lightnet-docker-image" },
+    { name = "MinaArtifactBullseyeLightnet", key = "archive-bullseye-lightnet-docker-image" }
 ]
 
 in Pipeline.build Pipeline.Config::{
