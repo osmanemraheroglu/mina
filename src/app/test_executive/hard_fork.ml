@@ -38,32 +38,40 @@ module Make (Inputs : Intf.Test.Inputs_intf) = struct
       ; previous_global_slot = 500000
       }
     in
+    let epoch_accounts : Test_Account.t list =
+      [ { account_name = "untimed-node-a-key"
+        ; balance = "400000"
+        ; timing = Untimed (* 400_000_000_000_000 *)
+        }
+      ; { account_name = "untimed-node-b-key"
+        ; balance = "300000"
+        ; timing = Untimed (* 300_000_000_000_000 *)
+        }
+      ; { account_name = "timed-node-c-key"
+        ; balance = "30000"
+        ; timing =
+            make_timing ~min_balance:10_000_000_000_000 ~cliff_time:8
+              ~cliff_amount:0 ~vesting_period:4
+              ~vesting_increment:5_000_000_000_000
+        }
+      ; { account_name = "snark-node-key1"; balance = "0"; timing = Untimed }
+      ; { account_name = "snark-node-key2"; balance = "0"; timing = Untimed }
+      ]
+    in
+    let staking : Test_config.Epoch_data.Data.t =
+      let epoch_seed = Snark_params.Tick.Field.(of_int 42 |> to_string) in
+      let epoch_ledger = epoch_accounts in
+      { epoch_ledger; epoch_seed}
+    in
     { default with
       epoch_data =
-        Some { staking = 42
-             ; next = 58
+        Some { staking
+             ; next = None
              }
-    ; genesis_ledger =
-        [ { account_name = "untimed-node-a-key"
-          ; balance = "400000"
-          ; timing = Untimed (* 400_000_000_000_000 *)
-          }
-        ; { account_name = "untimed-node-b-key"
-          ; balance = "300000"
-          ; timing = Untimed (* 300_000_000_000_000 *)
-          }
-        ; { account_name = "timed-node-c-key"
-          ; balance = "30000"
-          ; timing =
-              make_timing ~min_balance:10_000_000_000_000 ~cliff_time:8
-                ~cliff_amount:0 ~vesting_period:4
-                ~vesting_increment:5_000_000_000_000
-          }
-        ; { account_name = "snark-node-key1"; balance = "0"; timing = Untimed }
-        ; { account_name = "snark-node-key2"; balance = "0"; timing = Untimed }
-        ; { account_name = "fish1"; balance = "100"; timing = Untimed }
-        ; { account_name = "fish2"; balance = "100"; timing = Untimed }
-        ]
+    ; genesis_ledger = epoch_accounts @
+                       [ { account_name = "fish1"; balance = "100"; timing = Untimed }
+                       ; { account_name = "fish2"; balance = "100"; timing = Untimed }
+                       ]
     ; block_producers =
         [ { node_name = "untimed-node-a"; account_name = "untimed-node-a-key" }
         ; { node_name = "untimed-node-b"; account_name = "untimed-node-b-key" }
