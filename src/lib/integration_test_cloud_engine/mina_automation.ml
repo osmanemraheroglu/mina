@@ -253,21 +253,22 @@ module Network_config = struct
             ; name = None
             }
       ; epoch_data =
-          (* each epoch ledger account must also be a genesis ledger account, though
+          (* each staking and next epoch ledger account must also be a genesis ledger account, though
              the balance may be different; the converse is not necessarily true, since
              an account may have been added after the last epoch ledger was taken
+
+             each staking epoch ledger account must also be in the next epoch ledger, if provided
 
              in the epoch ledgers, the accounts must be in the same order as in the
              genesis ledger; using a String.Map assures the same order
           *)
           Option.map epoch_data ~f:(fun { staking; next } ->
-              let ledger_of_test_accounts
-                  (test_accounts : Test_config.Test_Account.t list) =
+              let ledger_of_epoch_accounts
+                  (epoch_accounts : Test_config.Test_Account.t list)
+                =
                 let epoch_ledger_accounts =
-                  List.fold test_accounts ~init:String.Map.empty
+                  List.fold epoch_accounts ~init:String.Map.empty
                     ~f:(fun map { account_name; balance; timing } ->
-                      assert (
-                        String.Map.mem genesis_ledger_accounts account_name ) ;
                       let genesis_account, _keys =
                         String.Map.find_exn genesis_ledger_accounts account_name
                       in
@@ -291,18 +292,25 @@ module Network_config = struct
                   }
                   : Runtime_config.Ledger.t )
               in
+              (* each staking epoch account is also a next epoch account *)
+              (match next with
+               | None -> ()
+               | Some {epoch_ledger=next_ledger;_} ->
+                 List.iter staking.epoch_ledger ~f:(fun {account_name=staking_name;_} ->
+                     assert(List.exists next_ledger ~f:(fun {account_name=next_name;_} ->
+                         String.equal staking_name next_name))));
               let staking =
                 let ({ epoch_ledger; epoch_seed }
                       : Test_config.Epoch_data.Data.t ) =
                   staking
                 in
-                let ledger = ledger_of_test_accounts epoch_ledger in
+                let ledger = ledger_of_epoch_accounts epoch_ledger in
                 let seed = epoch_seed in
                 ({ ledger; seed } : Runtime_config.Epoch_data.Data.t)
               in
               let next =
                 Option.map next ~f:(fun { epoch_ledger; epoch_seed } ->
-                    let ledger = ledger_of_test_accounts epoch_ledger in
+                    let ledger = ledger_of_epoch_accounts epoch_ledger in
                     let seed = epoch_seed in
                     ({ ledger; seed } : Runtime_config.Epoch_data.Data.t) )
               in

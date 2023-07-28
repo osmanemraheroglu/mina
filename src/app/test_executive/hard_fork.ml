@@ -39,7 +39,11 @@ module Make (Inputs : Intf.Test.Inputs_intf) = struct
       }
     in
     { default with
-      genesis_ledger =
+      epoch_data =
+        Some { staking = 42
+             ; next = 58
+             }
+    ; genesis_ledger =
         [ { account_name = "untimed-node-a-key"
           ; balance = "400000"
           ; timing = Untimed (* 400_000_000_000_000 *)
