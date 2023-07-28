@@ -45,9 +45,10 @@ echo "Installing archive node package: mina-archive=${MINA_DEB_VERSION}"
 sudo apt-get install --allow-downgrades -y mina-archive=${MINA_DEB_VERSION}
 
 echo "Generating locale for Postgresql"
-locale-gen en_US.UTF-8
 
-sudo dpkg-reconfigure locales
+update-locale "LANG=en_US.UTF-8"
+locale-gen --purge "en_US.UTF-8"
+dpkg-reconfigure --frontend noninteractive locales
 
 echo "Starting Postgresql service"
 sudo service postgresql start
