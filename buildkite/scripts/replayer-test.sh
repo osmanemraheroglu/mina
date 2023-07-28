@@ -51,9 +51,9 @@ echo "Starting Postgresql service"
 sudo service postgresql start
 
 
-echo ps -ef 
+ps -ef 
 
-echo pg_lsclusters
+pg_lsclusters
 
 echo "Postgres is up - executing command"
 
