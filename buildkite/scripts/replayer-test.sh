@@ -59,10 +59,10 @@ echo "Postgres is up - executing command"
 
 echo "Populating archive database"
 cd ~postgres
-sudo -u postgres psql < $TEST_DIR/archive_db.sql
-echo "ALTER USER postgres PASSWORD '$PGPASSWORD';" | sudo -u postgres psql
+sudo -u postgres psql -p 5433 < $TEST_DIR/archive_db.sql
+echo "ALTER USER postgres PASSWORD '$PGPASSWORD';" | sudo -u postgres psql -p 5433
 cd /workdir
 
 echo "Running replayer"
-mina-replayer --archive-uri postgres://postgres:$PGPASSWORD@localhost:5432/archive \
+mina-replayer --archive-uri postgres://postgres:$PGPASSWORD@localhost:5433/archive \
 	      --input-file $TEST_DIR/input.json --output-file /dev/null
