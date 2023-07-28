@@ -272,6 +272,9 @@ module Network_config = struct
                         String.Map.find_exn genesis_ledger_accounts account_name
                       in
                       let balance = Balance.of_mina_string_exn balance in
+                      (* change in timing is possible, because zkApps can add timings,
+                         accounts can become fully vested, becoming untimed
+                      *)
                       let timing = runtime_timing_of_timing timing in
                       let epoch_ledger_account =
                         { genesis_account with balance; timing }
