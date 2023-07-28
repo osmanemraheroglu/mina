@@ -47,13 +47,10 @@ sudo apt-get install --allow-downgrades -y mina-archive=${MINA_DEB_VERSION}
 echo "Generating locale for Postgresql"
 locale-gen en_US.UTF-8
 
+sudo dpkg-reconfigure locales
+
 echo "Starting Postgresql service"
 sudo service postgresql start
-
-
-ps -ef 
-
-pg_lsclusters
 
 echo "Postgres is up - executing command"
 
