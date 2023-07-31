@@ -91,7 +91,8 @@ module Make (Inputs : Intf.Test.Inputs_intf) = struct
       { epoch_ledger; epoch_seed }
     in
     { default with
-      epoch_data =
+      requires_graphql = true
+    ; epoch_data =
         Some { staking; next = Some next }
         (* the genesis ledger contains the staking ledger plus some other accounts *)
     ; genesis_ledger =
