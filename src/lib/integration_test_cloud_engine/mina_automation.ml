@@ -211,6 +211,8 @@ module Network_config = struct
     let genesis_ledger_accounts =
       add_accounts labeled_accounts (List.zip_exn genesis_ledger keypairs)
     in
+    Format.eprintf "GENESIS ACCOUNTS: %s@."
+      (String.Map.keys genesis_ledger_accounts |> String.concat ~sep:",") ;
     (* DAEMON CONFIG *)
     let constraint_constants =
       Genesis_ledger_helper.make_constraint_constants
@@ -253,14 +255,14 @@ module Network_config = struct
             ; name = None
             }
       ; epoch_data =
-          (* each staking and next epoch ledger account must also be a genesis ledger account, though
+          (* each staking epoch ledger account must also be a genesis ledger account, though
              the balance may be different; the converse is not necessarily true, since
              an account may have been added after the last epoch ledger was taken
 
-             each staking epoch ledger account must also be in the next epoch ledger, if provided
+             each staking epoch ledger must also be in the next epoch ledger, if provided
 
-             in the epoch ledgers, the accounts must be in the same order as in the
-             genesis ledger; using a String.Map assures the same order
+             in all ledgers, the accounts must be in the same order; using a String.Map assures
+             the same order
           *)
           Option.map epoch_data ~f:(fun { staking; next } ->
               let ledger_of_epoch_accounts
@@ -268,19 +270,16 @@ module Network_config = struct
                 let epoch_ledger_accounts =
                   List.fold epoch_accounts ~init:String.Map.empty
                     ~f:(fun map { account_name; balance; timing } ->
-                      let genesis_account, _keys =
+                      let balance = Balance.of_mina_string_exn balance in
+                      let timing = runtime_timing_of_timing timing in
+                      let genesis_account, _ =
                         String.Map.find_exn genesis_ledger_accounts account_name
                       in
-                      let balance = Balance.of_mina_string_exn balance in
-                      (* change in timing is possible, because zkApps can add timings,
-                         accounts can become fully vested, becoming untimed
-                      *)
-                      let timing = runtime_timing_of_timing timing in
-                      let epoch_ledger_account =
+                      let epoch_account =
                         { genesis_account with balance; timing }
                       in
                       String.Map.add_exn map ~key:account_name
-                        ~data:epoch_ledger_account )
+                        ~data:epoch_account )
                 in
                 ( { base = Accounts (String.Map.data epoch_ledger_accounts)
                   ; add_genesis_winner = None
@@ -307,12 +306,20 @@ module Network_config = struct
                       : Test_config.Epoch_data.Data.t ) =
                   staking
                 in
+                Format.eprintf "STAKING ACCOUNTS: %s@."
+                  ( List.map epoch_ledger ~f:(fun { account_name; _ } ->
+                        account_name )
+                  |> String.concat ~sep:"," ) ;
                 let ledger = ledger_of_epoch_accounts epoch_ledger in
                 let seed = epoch_seed in
                 ({ ledger; seed } : Runtime_config.Epoch_data.Data.t)
               in
               let next =
                 Option.map next ~f:(fun { epoch_ledger; epoch_seed } ->
+                    Format.eprintf "NEXT ACCOUNTS: %s@."
+                      ( List.map epoch_ledger ~f:(fun { account_name; _ } ->
+                            account_name )
+                      |> String.concat ~sep:"," ) ;
                     let ledger = ledger_of_epoch_accounts epoch_ledger in
                     let seed = epoch_seed in
                     ({ ledger; seed } : Runtime_config.Epoch_data.Data.t) )
