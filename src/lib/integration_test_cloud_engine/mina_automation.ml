@@ -264,8 +264,7 @@ module Network_config = struct
           *)
           Option.map epoch_data ~f:(fun { staking; next } ->
               let ledger_of_epoch_accounts
-                  (epoch_accounts : Test_config.Test_Account.t list)
-                =
+                  (epoch_accounts : Test_config.Test_Account.t list) =
                 let epoch_ledger_accounts =
                   List.fold epoch_accounts ~init:String.Map.empty
                     ~f:(fun map { account_name; balance; timing } ->
@@ -293,12 +292,16 @@ module Network_config = struct
                   : Runtime_config.Ledger.t )
               in
               (* each staking epoch account is also a next epoch account *)
-              (match next with
-               | None -> ()
-               | Some {epoch_ledger=next_ledger;_} ->
-                 List.iter staking.epoch_ledger ~f:(fun {account_name=staking_name;_} ->
-                     assert(List.exists next_ledger ~f:(fun {account_name=next_name;_} ->
-                         String.equal staking_name next_name))));
+              ( match next with
+              | None ->
+                  ()
+              | Some { epoch_ledger = next_ledger; _ } ->
+                  List.iter staking.epoch_ledger
+                    ~f:(fun { account_name = staking_name; _ } ->
+                      assert (
+                        List.exists next_ledger
+                          ~f:(fun { account_name = next_name; _ } ->
+                            String.equal staking_name next_name ) ) ) ) ;
               let staking =
                 let ({ epoch_ledger; epoch_seed }
                       : Test_config.Epoch_data.Data.t ) =

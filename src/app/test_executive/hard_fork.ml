@@ -18,6 +18,13 @@ module Make (Inputs : Intf.Test.Inputs_intf) = struct
 
   type dsl = Dsl.t
 
+  let fork_config : Runtime_config.Fork_config.t =
+    { previous_state_hash =
+        "3NKSiqFZQmAS12U8qeX4KNo8b4199spwNh7mrSs4Ci1Vacpfix2Q"
+    ; previous_length = 300000
+    ; previous_global_slot = 500000
+    }
+
   let config =
     let open Test_config in
     let make_timing ~min_balance ~cliff_time ~cliff_amount ~vesting_period
@@ -31,14 +38,7 @@ module Make (Inputs : Intf.Test.Inputs_intf) = struct
         ; vesting_increment = Amount.of_nanomina_int_exn vesting_increment
         }
     in
-    let fork_config : Runtime_config.Fork_config.t =
-      { previous_state_hash =
-          "3NKSiqFZQmAS12U8qeX4KNo8b4199spwNh7mrSs4Ci1Vacpfix2Q"
-      ; previous_length = 300000
-      ; previous_global_slot = 500000
-      }
-    in
-    let epoch_accounts : Test_Account.t list =
+    let staking_accounts : Test_Account.t list =
       [ { account_name = "untimed-node-a-key"
         ; balance = "400000"
         ; timing = Untimed (* 400_000_000_000_000 *)
@@ -60,18 +60,48 @@ module Make (Inputs : Intf.Test.Inputs_intf) = struct
     in
     let staking : Test_config.Epoch_data.Data.t =
       let epoch_seed = Snark_params.Tick.Field.(of_int 42 |> to_string) in
-      let epoch_ledger = epoch_accounts in
-      { epoch_ledger; epoch_seed}
+      let epoch_ledger = staking_accounts in
+      { epoch_ledger; epoch_seed }
+    in
+    (* next accounts superset of staking accounts, with balances changed *)
+    let next_accounts : Test_Account.t list =
+      [ { account_name = "untimed-node-a-key"
+        ; balance = "200000"
+        ; timing = Untimed
+        }
+      ; { account_name = "untimed-node-b-key"
+        ; balance = "350000"
+        ; timing = Untimed (* 300_000_000_000_000 *)
+        }
+      ; { account_name = "timed-node-c-key"
+        ; balance = "40000"
+        ; timing =
+            make_timing ~min_balance:10_000_000_000_000 ~cliff_time:8
+              ~cliff_amount:0 ~vesting_period:4
+              ~vesting_increment:5_000_000_000_000
+        }
+      ; { account_name = "untimed-node-d-key"
+        ; balance = "40000"
+        ; timing = Untimed
+        }
+      ; { account_name = "snark-node-key1"; balance = "0"; timing = Untimed }
+      ; { account_name = "snark-node-key2"; balance = "0"; timing = Untimed }
+      ]
+    in
+    let next : Test_config.Epoch_data.Data.t =
+      let epoch_seed = Snark_params.Tick.Field.(of_int 1729 |> to_string) in
+      let epoch_ledger = next_accounts in
+      { epoch_ledger; epoch_seed }
     in
     { default with
       epoch_data =
-        Some { staking
-             ; next = None
-             }
-    ; genesis_ledger = epoch_accounts @
-                       [ { account_name = "fish1"; balance = "100"; timing = Untimed }
-                       ; { account_name = "fish2"; balance = "100"; timing = Untimed }
-                       ]
+        Some { staking; next = Some next }
+        (* the genesis ledger contains the staking ledger plus some other accounts *)
+    ; genesis_ledger =
+        staking_accounts
+        @ [ { account_name = "fish1"; balance = "100"; timing = Untimed }
+          ; { account_name = "fish2"; balance = "100"; timing = Untimed }
+          ]
     ; block_producers =
         [ { node_name = "untimed-node-a"; account_name = "untimed-node-a-key" }
         ; { node_name = "untimed-node-b"; account_name = "untimed-node-b-key" }
@@ -121,10 +151,6 @@ module Make (Inputs : Intf.Test.Inputs_intf) = struct
     let fish2 =
       Core.String.Map.find_exn (Network.genesis_keypairs network) "fish2"
     in
-    (* hardcoded values of the balances of fish1 (receiver) and fish2 (sender), update here if they change in the config *)
-    (* TODO undo the harcoding, don't be lazy and just make the graphql commands to fetch the balances *)
-    let receiver_original_balance = Currency.Amount.of_mina_string_exn "100" in
-    let sender_original_balance = Currency.Amount.of_mina_string_exn "100" in
     let sender = fish2.keypair in
     let receiver = fish1.keypair in
     [%log info] "extra genesis keypairs: %s"
@@ -132,30 +158,8 @@ module Make (Inputs : Intf.Test.Inputs_intf) = struct
          ~f:(fun { Signature_lib.Keypair.public_key; _ } ->
            public_key |> Signature_lib.Public_key.to_bigstring
            |> Bigstring.to_string ) ) ;
-    let snark_coordinator =
-      Core.String.Map.find_exn (Network.all_nodes network) "snark-node"
-    in
-    let snark_node_key1 =
-      Core.String.Map.find_exn
-        (Network.genesis_keypairs network)
-        "snark-node-key1"
-    in
-    let snark_node_key2 =
-      Core.String.Map.find_exn
-        (Network.genesis_keypairs network)
-        "snark-node-key2"
-    in
-    [%log info] "snark node keypairs: %s"
-      (List.to_string [ snark_node_key1.keypair; snark_node_key2.keypair ]
-         ~f:(fun { Signature_lib.Keypair.public_key; _ } ->
-           public_key |> Signature_lib.Public_key.to_yojson
-           |> Yojson.Safe.to_string ) ) ;
-    (* setup code, creating a signed txn which we'll use to make a successful txn, and then use the same txn in a replay attack which should fail *)
     let receiver_pub_key =
       receiver.public_key |> Signature_lib.Public_key.compress
-    in
-    let receiver_account_id =
-      Account_id.create receiver_pub_key Token_id.default
     in
     let sender_pub_key =
       sender.public_key |> Signature_lib.Public_key.compress
@@ -207,148 +211,6 @@ module Make (Inputs : Intf.Test.Inputs_intf) = struct
               ~txn_hash:hash ~node_included_in:(`Node untimed_node_b) ) )
     in
     let%bind () =
-      section
-        "check that the account balances are what we expect after the previous \
-         txn"
-        (let%bind { total_balance = receiver_balance; _ } =
-           Integration_test_lib.Graphql_requests.must_get_account_data ~logger
-             (Network.Node.get_ingress_uri untimed_node_b)
-             ~account_id:receiver_account_id
-         in
-         let%bind { total_balance = sender_balance; _ } =
-           Integration_test_lib.Graphql_requests.must_get_account_data ~logger
-             (Network.Node.get_ingress_uri untimed_node_b)
-             ~account_id:sender_account_id
-         in
-         (* TODO, the intg test framework is ignoring test_constants.coinbase_amount for whatever reason, so hardcoding this until that is fixed *)
-         let receiver_expected =
-           Currency.Amount.add receiver_original_balance amount
-           |> Option.value_exn
-         in
-         let sender_expected =
-           Currency.Amount.sub sender_original_balance amount
-           (* ( Currency.Amount.add amount (Currency.Amount.of_fee fee)
-              |> Option.value_exn ) *)
-           (* TODO: put the fee back in *)
-           |> Option.value_exn
-         in
-         (* [%log info] "coinbase_amount: %s"
-            (Currency.Amount.to_formatted_string coinbase_reward) ; *)
-         [%log info] "txn_amount: %s" (Currency.Amount.to_mina_string amount) ;
-         [%log info] "receiver_expected: %s"
-           (Currency.Amount.to_mina_string receiver_expected) ;
-         [%log info] "receiver_balance: %s"
-           (Currency.Balance.to_mina_string receiver_balance) ;
-         [%log info] "sender_expected: %s"
-           (Currency.Amount.to_mina_string sender_expected) ;
-         [%log info] "sender_balance: %s"
-           (Currency.Balance.to_mina_string sender_balance) ;
-         if
-           (* node_a is the receiver *)
-           (* node_a_balance >= 400_000_000_000_000 + txn_amount *)
-           (* coinbase_amount is much less than txn_amount, so that even if node_a receives a coinbase, the balance (before receiving currency from a txn) should be less than original_amount + txn_amount *)
-           Currency.Amount.( >= )
-             (Currency.Balance.to_amount receiver_balance)
-             receiver_expected
-           (* node_b is the sender *)
-           (* node_b_balance <= (300_000_000_000_000 + node_b_num_produced_blocks*possible_coinbase_reward*2) - (txn_amount + txn_fee) *)
-           (* if one is unlucky, node_b could theoretically win a bunch of blocks in a row, which is why we have the `node_b_num_produced_blocks*possible_coinbase_reward*2` bit.  the *2 is because untimed accounts get supercharged rewards *)
-           (* TODO, the fee is not calculated in at the moment *)
-           && Currency.Amount.( <= )
-                (Currency.Balance.to_amount sender_balance)
-                sender_expected
-         then Malleable_error.return ()
-         else
-           Malleable_error.soft_error_format ~value:()
-             "Error with account balances.  receiver balance is %d and should \
-              be %d, sender balance is %d and should be %d.  and txn_amount is \
-              %d"
-             (Currency.Balance.to_nanomina_int receiver_balance)
-             (Currency.Amount.to_nanomina_int receiver_expected)
-             (Currency.Balance.to_nanomina_int sender_balance)
-             (Currency.Amount.to_nanomina_int sender_expected)
-             (Currency.Amount.to_nanomina_int amount) )
-    in
-    let%bind () =
-      section
-        "attempt to send again the same signed transaction command as before \
-         to conduct a replay attack. expecting a bad nonce"
-        (let open Deferred.Let_syntax in
-        match%bind
-          Integration_test_lib.Graphql_requests.send_payment_with_raw_sig
-            (Network.Node.get_ingress_uri untimed_node_b)
-            ~logger
-            ~sender_pub_key:(Signed_command_payload.fee_payer_pk payload)
-            ~receiver_pub_key:(Signed_command_payload.receiver_pk payload)
-            ~amount ~fee
-            ~nonce:(Signed_command_payload.nonce payload)
-            ~memo ~valid_until ~raw_signature
-        with
-        | Ok { nonce; _ } ->
-            Malleable_error.soft_error_format ~value:()
-              "Replay attack succeeded, but it should fail because the nonce \
-               is old.  attempted nonce: %d"
-              (Unsigned.UInt32.to_int nonce)
-        | Error error ->
-            (* expect GraphQL error due to bad nonce *)
-            let err_str = Error.to_string_mach error in
-            let err_str_lowercase = String.lowercase err_str in
-            if
-              String.is_substring
-                ~substring:"either different from inferred nonce"
-                err_str_lowercase
-            then (
-              [%log info] "Got expected bad nonce error from GraphQL" ;
-              Malleable_error.return () )
-            else (
-              [%log error]
-                "Payment failed in GraphQL, but for unexpected reason: %s"
-                err_str ;
-              Malleable_error.soft_error_format ~value:()
-                "Payment failed for unexpected reason: %s" err_str ))
-    in
-    let%bind () =
-      section
-        "attempt to send again the same signed transaction command as before, \
-         but changing the nonce, to conduct a replay attack.  expecting an \
-         Invalid_signature"
-        (let open Deferred.Let_syntax in
-        match%bind
-          Integration_test_lib.Graphql_requests.send_payment_with_raw_sig
-            (Network.Node.get_ingress_uri untimed_node_a)
-            ~logger
-            ~sender_pub_key:(Signed_command_payload.fee_payer_pk payload)
-            ~receiver_pub_key:(Signed_command_payload.receiver_pk payload)
-            ~amount ~fee
-            ~nonce:
-              (Mina_numbers.Account_nonce.succ
-                 (Signed_command_payload.nonce payload) )
-            ~memo ~valid_until ~raw_signature
-        with
-        | Ok { nonce = returned_nonce; _ } ->
-            Malleable_error.soft_error_format ~value:()
-              "Replay attack succeeded, but it should fail because the \
-               signature is wrong.  payload nonce: %d.  returned nonce: %d"
-              (Unsigned.UInt32.to_int (Signed_command_payload.nonce payload))
-              (Unsigned.UInt32.to_int returned_nonce)
-        | Error error ->
-            (* expect GraphQL error due to invalid signature *)
-            let err_str = Error.to_string_mach error in
-            let err_str_lowercase = String.lowercase err_str in
-            if
-              String.is_substring ~substring:"invalid_signature"
-                err_str_lowercase
-            then (
-              [%log info] "Got expected invalid signature error from GraphQL" ;
-              Malleable_error.return () )
-            else (
-              [%log error]
-                "Payment failed in GraphQL, but for unexpected reason: %s"
-                err_str ;
-              Malleable_error.soft_error_format ~value:()
-                "Payment failed, but for unexpected reason: %s" err_str ))
-    in
-    let%bind () =
       section "send a single payment from timed account using available liquid"
         (let amount = Currency.Amount.of_mina_int_exn 1_000 in
          let receiver = untimed_node_a in
@@ -366,52 +228,6 @@ module Make (Inputs : Intf.Test.Inputs_intf) = struct
               ~txn_hash:hash ~node_included_in:(`Node timed_node_c) ) )
     in
     let%bind () =
-      section "unable to send payment from timed account using illiquid tokens"
-        (let amount = Currency.Amount.of_mina_int_exn 25_000 in
-         let receiver = untimed_node_b in
-         let%bind receiver_pub_key = pub_key_of_node receiver in
-         let sender = timed_node_c in
-         let%bind sender_pub_key = pub_key_of_node sender in
-         let%bind { total_balance = timed_node_c_total; _ } =
-           Integration_test_lib.Graphql_requests.must_get_account_data ~logger
-             (Network.Node.get_ingress_uri timed_node_c)
-             ~account_id:sender_account_id
-         in
-         [%log info] "timed_node_c total balance: %s"
-           (Currency.Balance.to_mina_string timed_node_c_total) ;
-         [%log info]
-           "Attempting to send txn from timed_node_c to untimed_node_a for \
-            amount of %s"
-           (Currency.Amount.to_mina_string amount) ;
-         (* TODO: refactor this using new [expect] dsl when it's available *)
-         let open Deferred.Let_syntax in
-         match%bind
-           Integration_test_lib.Graphql_requests.send_online_payment ~logger
-             (Network.Node.get_ingress_uri sender)
-             ~sender_pub_key ~receiver_pub_key ~amount ~fee
-         with
-         | Ok _ ->
-             Malleable_error.soft_error_string ~value:()
-               "Payment succeeded, but expected it to fail because of a \
-                minimum balance violation"
-         | Error error ->
-             (* expect GraphQL error due to insufficient funds *)
-             let err_str = Error.to_string_mach error in
-             let err_str_lowercase = String.lowercase err_str in
-             if
-               String.is_substring ~substring:"insufficient_funds"
-                 err_str_lowercase
-             then (
-               [%log info] "Got expected insufficient funds error from GraphQL" ;
-               Malleable_error.return () )
-             else (
-               [%log error]
-                 "Payment failed in GraphQL, but for unexpected reason: %s"
-                 err_str ;
-               Malleable_error.soft_error_format ~value:()
-                 "Payment failed for unexpected reason: %s" err_str ) )
-    in
-    let%bind () =
       section_hard
         "send out a bunch more txns to fill up the snark ledger, then wait for \
          proofs to be emitted"
@@ -420,19 +236,6 @@ module Make (Inputs : Intf.Test.Inputs_intf) = struct
          let sender = untimed_node_b in
          let%bind sender_pub_key = pub_key_of_node sender in
          let%bind _ =
-           (*
-            To fill up a `small` transaction capacity with work delay of 1,
-            there needs to be 12 total txns sent.
-            Calculation is as follows:
-            Max number trees in the scan state is
-              `(transaction_capacity_log+1) * (work_delay+1)`
-            and for 2^2 transaction capacity and work delay 1 it is
-              `(2+1)*(1+1)=6`.
-            Per block there can be 2 transactions included (other two slots would be for a coinbase and fee transfers).
-            In the initial state of the network, the scan state waits till all the trees are filled before emitting a proof from the first tree.
-            Hence, 6*2 = 12 transactions untill we get the first snarked ledger.
-            2 successful txn are sent in the prior course of this test,
-            so spamming out at least 10 more here will trigger a ledger proof to be emitted *)
            send_payments ~logger ~sender_pub_key ~receiver_pub_key
              ~amount:Currency.Amount.one ~fee ~node:sender 10
          in
@@ -440,124 +243,70 @@ module Make (Inputs : Intf.Test.Inputs_intf) = struct
            (Wait_condition.ledger_proofs_emitted_since_genesis
               ~test_config:config ~num_proofs:1 ) )
     in
-    let get_account_id pubk =
-      Account_id.create
-        (pubk |> Signature_lib.Public_key.compress)
-        Token_id.default
-    in
     let%bind () =
       section_hard
-        "check account balances.  snark-node-key1 should be greater than or \
-         equal to the snark fee"
-        (let%bind { total_balance = key_1_balance_actual; _ } =
-           Integration_test_lib.Graphql_requests.must_get_account_data ~logger
-             (Network.Node.get_ingress_uri untimed_node_b)
-             ~account_id:(get_account_id snark_node_key1.keypair.public_key)
+        "checking height, global slot since genesis in precomputed blocks"
+        (let%bind () =
+           Network.Node.dump_precomputed_blocks ~logger untimed_node_a
          in
-         let%bind { total_balance = key_2_balance_actual; _ } =
-           Integration_test_lib.Graphql_requests.must_get_account_data ~logger
-             (Network.Node.get_ingress_uri untimed_node_a)
-             ~account_id:(get_account_id snark_node_key2.keypair.public_key)
+         let%bind.Deferred files = Sys.ls_dir "." in
+         Format.eprintf "FILES: %s@." (String.concat files ~sep:",") ;
+         let precomputed_block_files =
+           List.filter files ~f:(fun file ->
+               String.is_prefix file ~prefix:"3N"
+               && String.is_suffix file ~suffix:".json" )
          in
-         let key_1_balance_expected =
-           Currency.Amount.of_mina_string_exn config.snark_worker_fee
+         Format.eprintf "PRECOMP FILES: %s@."
+           (String.concat precomputed_block_files ~sep:",") ;
+         let block_data =
+           List.map precomputed_block_files ~f:(fun fn ->
+               match In_channel.read_all fn |> Yojson.Safe.from_string with
+               | `Assoc items ->
+                   let find item =
+                     match
+                       List.Assoc.find_exn items ~equal:String.equal item
+                     with
+                     | `String s ->
+                         Int.of_string s
+                     | _ ->
+                         failwith "Expected item to be a string"
+                   in
+                   let height = find "height" in
+                   let global_slot_since_genesis =
+                     find "global_slot_since_genesis"
+                   in
+                   let global_slot_since_hard_fork =
+                     find "global_slot_since_hard_fork"
+                   in
+                   ( height
+                   , global_slot_since_genesis
+                   , global_slot_since_hard_fork )
+               | _ ->
+                   failwith "Expected precomputed block to be a record" )
          in
-         if
-           Currency.Amount.( >= )
-             (Currency.Balance.to_amount key_1_balance_actual)
-             key_1_balance_expected
-         then (
-           [%log info]
-             "balance check successful.  \n\
-              snark-node-key1 balance: %s.  \n\
-              snark-node-key2 balance: %s.  \n\
-              snark-worker-fee: %s"
-             (Currency.Balance.to_mina_string key_1_balance_actual)
-             (Currency.Balance.to_mina_string key_2_balance_actual)
-             config.snark_worker_fee ;
-
-           Malleable_error.return () )
-         else
-           Malleable_error.soft_error_format ~value:()
-             "Error with balance of snark-node-key1.  \n\
-              snark-node-key1 balance: %s.  \n\
-              snark-node-key2 balance: %s.  \n\
-              snark-worker-fee: %s"
-             (Currency.Balance.to_mina_string key_1_balance_actual)
-             (Currency.Balance.to_mina_string key_2_balance_actual)
-             config.snark_worker_fee )
-    in
-    let%bind () =
-      section_hard
-        "change snark worker key from snark-node-key1 to snark-node-key2"
-        (Integration_test_lib.Graphql_requests.must_set_snark_worker ~logger
-           (Network.Node.get_ingress_uri snark_coordinator)
-           ~new_snark_pub_key:
-             ( snark_node_key2.keypair.public_key
-             |> Signature_lib.Public_key.compress ) )
-    in
-    let new_snark_work_fee = Currency.Amount.of_mina_string_exn "0.0001" in
-    let%bind () =
-      section_hard "change snark work fee from 0.0002 to 0.0001"
-        (Integration_test_lib.Graphql_requests.must_set_snark_work_fee ~logger
-           (Network.Node.get_ingress_uri snark_coordinator)
-           ~new_snark_work_fee:
-             (Currency.Amount.to_nanomina_int new_snark_work_fee) )
-    in
-    let%bind () =
-      section_hard
-        "send out a bunch of txns to fill up the snark ledger, then wait for \
-         proofs to be emitted"
-        (let receiver = untimed_node_b in
-         let%bind receiver_pub_key = pub_key_of_node receiver in
-         let sender = untimed_node_a in
-         let%bind sender_pub_key = pub_key_of_node sender in
-         let%bind _ =
-           send_payments ~logger ~sender_pub_key ~receiver_pub_key
-             ~amount:Currency.Amount.one ~fee ~node:sender 12
+         let%bind () =
+           Malleable_error.List.iter block_data
+             ~f:(fun (h, since_genesis, since_fork) ->
+               Format.eprintf "BLOCK: HEIGHT: %d SINCE_GEN: %d SINCE_FORK: %d@."
+                 h since_genesis since_fork ;
+               let bad_height = h <= fork_config.previous_length in
+               let bad_slot =
+                 since_genesis <= fork_config.previous_global_slot
+               in
+               if bad_height && bad_slot then
+                 Malleable_error.hard_error
+                   (Error.of_string
+                      "Block height and slot not greater than in fork config" )
+               else if bad_height then
+                 Malleable_error.hard_error
+                   (Error.of_string
+                      "Block height not greater than in fork config" )
+               else if bad_slot then
+                 Malleable_error.hard_error
+                   (Error.of_string "Block slot not greater than in fork config")
+               else return () )
          in
-         wait_for t
-           (Wait_condition.ledger_proofs_emitted_since_genesis ~num_proofs:2
-              ~test_config:config ) )
-    in
-    let%bind () =
-      section_hard
-        "check account balances.  snark-node-key2 should be greater than or \
-         equal to the snark fee"
-        (let%bind { total_balance = key_1_balance_actual; _ } =
-           Integration_test_lib.Graphql_requests.must_get_account_data ~logger
-             (Network.Node.get_ingress_uri untimed_node_b)
-             ~account_id:(get_account_id snark_node_key1.keypair.public_key)
-         in
-         let%bind { total_balance = key_2_balance_actual; _ } =
-           Integration_test_lib.Graphql_requests.must_get_account_data ~logger
-             (Network.Node.get_ingress_uri untimed_node_a)
-             ~account_id:(get_account_id snark_node_key2.keypair.public_key)
-         in
-         if
-           Currency.Amount.( >= )
-             (Currency.Balance.to_amount key_2_balance_actual)
-             new_snark_work_fee
-         then (
-           [%log info]
-             "balance check successful.  \n\
-              snark-node-key1 balance: %s.  \n\
-              snark-node-key2 balance: %s.  \n\
-              new-snark-work-fee: %s"
-             (Currency.Balance.to_mina_string key_1_balance_actual)
-             (Currency.Balance.to_mina_string key_2_balance_actual)
-             (Currency.Amount.to_mina_string new_snark_work_fee) ;
-
-           Malleable_error.return () )
-         else
-           Malleable_error.soft_error_format ~value:()
-             "Error with balance of snark-node-key2.  \n\
-              snark-node-key1 balance: %s.  \n\
-              snark-node-key2 balance: %s.  \n\
-              new-snark-work-fee: %s"
-             (Currency.Balance.to_mina_string key_1_balance_actual)
-             (Currency.Balance.to_mina_string key_2_balance_actual)
-             (Currency.Amount.to_mina_string new_snark_work_fee) )
+         return () )
     in
     section_hard "running replayer"
       (let%bind logs =

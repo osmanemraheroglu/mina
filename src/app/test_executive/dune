@@ -29,6 +29,7 @@
    integration_test_lib
    signature_lib
    mina_base
+   mina_block
    mina_stdlib
    mina_transaction
    file_system
