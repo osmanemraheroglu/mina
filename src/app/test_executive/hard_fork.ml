@@ -80,10 +80,7 @@ module Make (Inputs : Intf.Test.Inputs_intf) = struct
               ~cliff_amount:0 ~vesting_period:4
               ~vesting_increment:5_000_000_000_000
         }
-      ; { account_name = "untimed-node-d-key"
-        ; balance = "40000"
-        ; timing = Untimed
-        }
+      ; { account_name = "fish1"; balance = "100"; timing = Untimed }
       ; { account_name = "snark-node-key1"; balance = "0"; timing = Untimed }
       ; { account_name = "snark-node-key2"; balance = "0"; timing = Untimed }
       ]
