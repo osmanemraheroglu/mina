@@ -22,18 +22,19 @@ let jobs : List JobSpec.Type =
 -- Run a job if we touched a dirty path
 let makeCommand : JobSpec.Type -> Cmd.Type = \(job : JobSpec.Type) ->
   let dirtyWhen = SelectFiles.compile job.dirtyWhen
-  let pipelineMode = PipelineMode.capitalName job.mode
   let trigger = triggerCommand "src/Jobs/${job.path}/${job.name}.dhall"
-  let pipelineType : PipelineMode.Mode = env:BUILDKITE_PIPELINE_MODE ? PipelineMode.Mode.PullRequest
+  let pipelineType : PipelineMode.Mode = env:BUILDKITE_PIPELINE_MODE ? job.mode
   let pipelineHandlers = {
     PullRequest = ''
-      if [[ "${pipelineMode}" != "PullRequest" ]]; then  
-        echo "Skipping ${job.name} because this is a CI buildkite run, not stable"
-      elif (cat _computed_diff.txt | egrep -q '${dirtyWhen}'); then
+      if (cat _computed_diff.txt | egrep -q '${dirtyWhen}'); then
         echo "Triggering ${job.name} for reason:"
         cat _computed_diff.txt | egrep '${dirtyWhen}'
         ${Cmd.format trigger}
       fi
+    '',
+    PullRequestTearDown = ''
+      echo "Triggering ${job.name} because this is a teardown job"
+      ${Cmd.format trigger}
     '',
     Stable = ''
       echo "Triggering ${job.name} because this is a stable buildkite run"
