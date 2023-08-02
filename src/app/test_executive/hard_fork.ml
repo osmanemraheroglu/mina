@@ -59,7 +59,9 @@ module Make (Inputs : Intf.Test.Inputs_intf) = struct
       ]
     in
     let staking : Test_config.Epoch_data.Data.t =
-      let epoch_seed = Snark_params.Tick.Field.(of_int 42 |> to_string) in
+      let epoch_seed =
+        Epoch_seed.to_base58_check Snark_params.Tick.Field.(of_int 42)
+      in
       let epoch_ledger = staking_accounts in
       { epoch_ledger; epoch_seed }
     in
@@ -86,7 +88,9 @@ module Make (Inputs : Intf.Test.Inputs_intf) = struct
       ]
     in
     let next : Test_config.Epoch_data.Data.t =
-      let epoch_seed = Snark_params.Tick.Field.(of_int 1729 |> to_string) in
+      let epoch_seed =
+        Epoch_seed.to_base58_check Snark_params.Tick.Field.(of_int 1729)
+      in
       let epoch_ledger = next_accounts in
       { epoch_ledger; epoch_seed }
     in
