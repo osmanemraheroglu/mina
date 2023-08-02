@@ -32,6 +32,10 @@ let makeCommand : JobSpec.Type -> Cmd.Type = \(job : JobSpec.Type) ->
         ${Cmd.format trigger}
       fi
     '',
+    PullRequestTearDown = ''
+      echo "Triggering ${job.name} because this is a Pull request tear down buildkite run"
+      ${Cmd.format trigger}
+    '',
     Stable = ''
       echo "Triggering ${job.name} because this is a stable buildkite run"
       ${Cmd.format trigger}
