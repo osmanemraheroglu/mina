@@ -1,10 +1,11 @@
 let Prelude = ../External/Prelude.dhall
 
-let Mode = <PullRequest | Stable>
+let Mode = <PullRequest | PullRequestTearDown | Stable>
 
 let capitalName = \(pipelineMode : Mode) ->
   merge {
     PullRequest = "PullRequest"
+    , PullRequestTearDown = "PullRequestTearDown"
     , Stable = "Stable"
   } pipelineMode
 
