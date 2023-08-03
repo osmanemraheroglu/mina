@@ -1008,15 +1008,11 @@ module Wrap : sig
                    (   'h Proof_state.Deferred_values.Plonk.In_circuit.Lookup.t
                     -> ('h * unit) Hlist.HlistId.t )
               -> 'j Hlist0.Id.t )
-        -> to_opt:('fp_opt -> 'fp_opt2)
         -> ('c, 'a, 'b, 'e, 'f, 'g, 'j, 'fp_opt2, 'bool) flat_repr
 
       (** Construct a statement (as structured data) from the flat data-based representation. *)
       val of_data :
            ('a, 'b, 'c, 'd, 'e, 'f, 'g, 'fp option, 'bool) flat_repr
-        -> feature_flags:
-             Pickles_types.Plonk_types.Opt.Flag.t
-             Pickles_types.Plonk_types.Features.t
         -> option_map:
              (   'g Hlist0.Id.t
               -> f:
@@ -1024,7 +1020,6 @@ module Wrap : sig
                     -> 'h Proof_state.Deferred_values.Plonk.In_circuit.Lookup.t
                    )
               -> 'j )
-        -> of_opt:(('fp, 'bool) Pickles_types.Plonk_types.Opt.t -> 'fp_opt2)
         -> ('b, 'c, 'a, 'fp_opt2, 'j, 'bool, 'd, 'd, 'd, 'e, 'f) t
     end
 

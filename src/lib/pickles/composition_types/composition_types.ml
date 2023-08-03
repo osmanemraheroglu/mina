@@ -851,7 +851,7 @@ module Wrap = struct
            ; messages_for_next_step_proof
              (* messages_for_next_step_proof is represented as a digest inside the circuit *)
            } :
-            _ t ) ~option_map ~to_opt =
+            _ t ) ~option_map =
         let open Vector in
         let fp =
           [ combined_inner_product
@@ -893,7 +893,7 @@ module Wrap = struct
             ; index
             ; feature_flags
             ; lookup
-            ] ~feature_flags:flags ~option_map ~of_opt : _ t =
+            ] ~option_map : _ t =
         let open Vector in
         let [ combined_inner_product
             ; b
