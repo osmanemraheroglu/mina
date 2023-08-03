@@ -1391,7 +1391,7 @@ module Step = struct
 
     let[@warning "-60"] typ (type n f)
         ( (module Impl : Snarky_backendless.Snark_intf.Run with type field = f)
-        as impl ) _ ~assert_16_bits
+        as impl ) ~assert_16_bits
         (proofs_verified :
           (Plonk_types.Opt.Flag.t Plonk_types.Features.t, n) Vector.t ) fq :
         ( ((_, _) Vector.t, _) t

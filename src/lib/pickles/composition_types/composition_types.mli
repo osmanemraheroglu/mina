@@ -1424,11 +1424,6 @@ module Step : sig
 
     val typ :
          'f Spec.impl
-      -> ( Limb_vector.Challenge.Constant.t
-         , 'f Limb_vector.Challenge.t
-         , 'a Hlist0.Id.t
-         , 'b Hlist0.Id.t )
-         Zero_values.t
       -> assert_16_bits:('f Snarky_backendless.Cvar.t -> unit)
       -> (Plonk_types.Opt.Flag.t Plonk_types.Features.t, 'n) Vector.t
       -> ( 'b
