@@ -708,7 +708,7 @@ module Proof_keys = struct
   let of_yojson json =
     Result.bind ~f:of_json_layout (Json_layout.Proof_keys.of_yojson json)
 
-  let combine t1 t2 : t =
+  let combine t1 t2 =
     { level = opt_fallthrough ~default:t1.level t2.level
     ; sub_windows_per_window =
         opt_fallthrough ~default:t1.sub_windows_per_window

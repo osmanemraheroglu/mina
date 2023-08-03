@@ -65,7 +65,7 @@ module Make (Inputs : Intf.Test.Inputs_intf) = struct
       let epoch_ledger = staking_accounts in
       { epoch_ledger; epoch_seed }
     in
-    (* next accounts superset of staking accounts, with balances changed *)
+    (* next accounts contains staking accounts, with balances changed, one new account *)
     let next_accounts : Test_Account.t list =
       [ { account_name = "untimed-node-a-key"
         ; balance = "200000"
@@ -82,9 +82,9 @@ module Make (Inputs : Intf.Test.Inputs_intf) = struct
               ~cliff_amount:0 ~vesting_period:4
               ~vesting_increment:5_000_000_000_000
         }
-      ; { account_name = "fish1"; balance = "100"; timing = Untimed }
       ; { account_name = "snark-node-key1"; balance = "0"; timing = Untimed }
       ; { account_name = "snark-node-key2"; balance = "0"; timing = Untimed }
+      ; { account_name = "fish1"; balance = "100"; timing = Untimed }
       ]
     in
     let next : Test_config.Epoch_data.Data.t =
@@ -96,13 +96,13 @@ module Make (Inputs : Intf.Test.Inputs_intf) = struct
     in
     { default with
       requires_graphql = true
-    ; epoch_data =
-        Some { staking; next = Some next }
-        (* the genesis ledger contains the staking ledger plus some other accounts *)
+    ; epoch_data = Some { staking; next = Some next }
     ; genesis_ledger =
+        (* the genesis ledger contains the staking ledger plus some other accounts *)
         staking_accounts
         @ [ { account_name = "fish1"; balance = "100"; timing = Untimed }
           ; { account_name = "fish2"; balance = "100"; timing = Untimed }
+          ; { account_name = "fish3"; balance = "1000"; timing = Untimed }
           ]
     ; block_producers =
         [ { node_name = "untimed-node-a"; account_name = "untimed-node-a-key" }
