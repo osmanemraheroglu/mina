@@ -632,8 +632,8 @@ let wrap
       Req ) :
       (max_proofs_verified, max_local_max_proofs_verifieds) Requests.Wrap.t )
     ~dlog_plonk_index wrap_main ~(typ : _ Impls.Step.Typ.t) ~step_vk
-    ~actual_wrap_domains ~step_plonk_indices:_ ~feature_flags
-    ~actual_feature_flags ?tweak_statement pk
+    ~actual_wrap_domains ~step_plonk_indices:_ ~actual_feature_flags
+    ?tweak_statement pk
     ({ statement = prev_statement; prev_evals; proof; index = which_index } :
       ( _
       , _

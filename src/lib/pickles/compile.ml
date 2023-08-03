@@ -774,7 +774,7 @@ struct
                   *)
                   Some tweak_statement
             in
-            Wrap.wrap ~max_proofs_verified:Max_proofs_verified.n ~feature_flags
+            Wrap.wrap ~max_proofs_verified:Max_proofs_verified.n
               ~actual_feature_flags:b.feature_flags full_signature.maxes
               wrap_requests ?tweak_statement
               ~dlog_plonk_index:wrap_vk.commitments wrap_main ~typ ~step_vk
