@@ -1172,8 +1172,7 @@ module Make_str (_ : Wire_types.Concrete) = struct
           let step_domains = Vector.singleton inner_step_data.domains in
           let step_keypair =
             let etyp =
-              Impls.Step.input ~feature_flags
-                ~proofs_verified:Max_proofs_verified.n
+              Impls.Step.input ~proofs_verified:Max_proofs_verified.n
                 ~wrap_rounds:Tock.Rounds.n
             in
             let (T (typ, _conv, conv_inv)) = etyp in

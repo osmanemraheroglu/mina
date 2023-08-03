@@ -59,7 +59,7 @@ struct
           with type length = Max_proofs_verified.n
            and type ns = max_local_max_proof_verifieds )
       ~(prevs_length : (prev_vars, prevs_length) Length.t) ~self ~step_domains
-      ~feature_flags ~self_dlog_plonk_index
+      ~feature_flags:_ ~self_dlog_plonk_index
       ~(public_input :
          ( var
          , value
@@ -797,7 +797,7 @@ struct
     let%map.Promise (next_proof : Tick.Proof.t), _next_statement_hashed =
       let (T (input, _conv, conv_inv)) =
         Impls.Step.input ~proofs_verified:Max_proofs_verified.n
-          ~wrap_rounds:Tock.Rounds.n ~feature_flags
+          ~wrap_rounds:Tock.Rounds.n
       in
       let { Domains.h } = Vector.nth_exn step_domains branch_data.index in
       ksprintf Common.time "step-prover %d (%d)" branch_data.index
