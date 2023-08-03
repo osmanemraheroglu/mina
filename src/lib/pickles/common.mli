@@ -1,5 +1,3 @@
-open Pickles_types
-
 val wrap_domains : proofs_verified:int -> Import.Domains.Stable.V2.t
 
 val actual_wrap_domain_size :
