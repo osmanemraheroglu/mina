@@ -1377,12 +1377,6 @@ module Step : sig
            )
            snarky_typ
         -> assert_16_bits:('a Snarky_backendless.Cvar.t -> unit)
-        -> zero:
-             ( Limb_vector.Challenge.Constant.t
-             , 'a Limb_vector.Challenge.t
-             , 'c Hlist0.Id.t
-             , 'b Hlist0.Id.t )
-             Zero_values.t
         -> ( ( 'a Limb_vector.Challenge.t
              , 'a Limb_vector.Challenge.t Scalar_challenge.t
              , 'b
