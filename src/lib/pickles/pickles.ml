@@ -1424,7 +1424,6 @@ module Make_str (_ : Wire_types.Concrete) = struct
                     let module O = Tick.Oracles in
                     let public_input =
                       tick_public_input_of_statement ~max_proofs_verified
-                        ~feature_flags:Plonk_types.Features.none
                         prev_statement_with_hashes
                     in
                     let prev_challenges =
