@@ -1150,8 +1150,6 @@ module Step : sig
 
           val typ :
                'f Spec.impl
-            -> dummy_scalar:'a
-            -> dummy_scalar_challenge:'b Scalar_challenge.t
             -> challenge:
                  ( 'c
                  , 'd
@@ -1161,14 +1159,6 @@ module Step : sig
                    Snarky_backendless.Checked_runner.Simple.Types.Checked.t )
                  Snarky_backendless.Types.Typ.t
             -> scalar_challenge:('e, 'b, 'f) Snarky_backendless.Typ.t
-            -> bool:
-                 ( ('f Snarky_backendless.Cvar.t Snarky_backendless.Boolean.t
-                    as
-                    'boolean )
-                 , bool
-                 , 'f )
-                 Snarky_backendless.Typ.t
-            -> feature_flags:Plonk_types.Opt.Flag.t Plonk_types.Features.t
             -> ('fp, 'a, 'f) Snarky_backendless.Typ.t
             -> ( ('c, 'e Scalar_challenge.t, 'fp) t
                , ('d, 'b Scalar_challenge.t, 'a) t
