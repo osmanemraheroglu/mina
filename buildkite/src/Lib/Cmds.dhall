@@ -29,6 +29,10 @@ let module = \(environment : List Text) ->
   }
 
   let Cmd = { line: Text, readable: Optional Text }
+
+  let wait: Cmd = 
+    { line = "wait", readable = None Text }
+
   let run : Text -> Cmd =
     \(script: Text) -> { line = script, readable = Some script }
 
@@ -97,6 +101,7 @@ let module = \(environment : List Text) ->
   , CacheSetupCmd = CacheSetupCmd
   , quietly = quietly
   , run = run
+  , wait = wait
   , true = true
   , false = false
   , runInDocker = runInDocker
