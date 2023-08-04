@@ -202,7 +202,9 @@ end = struct
 
   let get_exn ({ T.tree; depth; _ } as t) idx =
     Format.eprintf "SPARSE LEDGER GET: %s@."
-      (Caml.Printexc.get_callstack 30 |> Caml.Printexc.raw_backtrace_to_string) ;
+      ( Caml.Printexc.get_callstack 10
+      |> Caml.Printexc.raw_backtrace_to_string
+      |> Str.(global_replace (regexp "\n") "@@@") ) ;
     let rec go i tree =
       match (i < 0, tree) with
       | true, Tree.Account acct ->

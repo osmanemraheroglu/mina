@@ -307,7 +307,6 @@ module Network_config = struct
               in
               let next =
                 Option.map next ~f:(fun { epoch_ledger; epoch_seed } ->
-                    (* staking ledger a prefix of next ledger *)
                     if
                       not
                         (ledger_is_prefix staking_ledger.epoch_ledger
@@ -315,6 +314,9 @@ module Network_config = struct
                     then
                       failwith
                         "Staking epoch ledger not a prefix of next epoch ledger" ;
+                    if not (ledger_is_prefix epoch_ledger genesis_ledger) then
+                      failwith
+                        "Next epoch ledger not a prefix of genesis ledger" ;
                     Format.eprintf "NEXT ACCOUNTS: %s@."
                       ( List.map epoch_ledger ~f:(fun { account_name; _ } ->
                             account_name )
