@@ -58,7 +58,7 @@ module Make (Inputs : Intf.Test.Inputs_intf) = struct
       ; { account_name = "snark-node-key2"; balance = "0"; timing = Untimed }
       ]
     in
-    let staking : Test_config.Epoch_data.Data.t =
+    let _staking : Test_config.Epoch_data.Data.t =
       let epoch_seed =
         Epoch_seed.to_base58_check Snark_params.Tick.Field.(of_int 42)
       in
@@ -87,7 +87,7 @@ module Make (Inputs : Intf.Test.Inputs_intf) = struct
       ; { account_name = "fish1"; balance = "100"; timing = Untimed }
       ]
     in
-    let next : Test_config.Epoch_data.Data.t =
+    let _next : Test_config.Epoch_data.Data.t =
       let epoch_seed =
         Epoch_seed.to_base58_check Snark_params.Tick.Field.(of_int 1729)
       in
@@ -95,8 +95,8 @@ module Make (Inputs : Intf.Test.Inputs_intf) = struct
       { epoch_ledger; epoch_seed }
     in
     { default with
-      requires_graphql = true
-    ; epoch_data = Some { staking; next = Some next }
+      requires_graphql =
+        true (*    ; epoch_data = Some { staking; next = Some next } *)
     ; genesis_ledger =
         (* the genesis ledger contains the staking ledger plus some other accounts *)
         staking_accounts
