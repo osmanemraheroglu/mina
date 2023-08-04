@@ -123,6 +123,14 @@ end = struct
   let merkle_root { T.tree; _ } = hash tree
 
   let add_path depth0 tree0 path0 account =
+    Format.eprintf "SPARSE LEDGER ADD PATH @ PATH = %s ACCT = %s: %s@."
+      ( List.map path0 ~f:(fun item ->
+            match item with `Left _ -> "LEFT" | `Right _ -> "RIGHT" )
+      |> String.concat ~sep:"," )
+      (Account.to_yojson account |> Yojson.Safe.to_string)
+      ( Caml.Printexc.get_callstack 10
+      |> Caml.Printexc.raw_backtrace_to_string
+      |> Str.(global_replace (regexp "\n") "@@@") ) ;
     let rec build_tree height p =
       match p with
       | `Left h_r :: path ->
@@ -201,7 +209,7 @@ end = struct
           ()
 
   let get_exn ({ T.tree; depth; _ } as t) idx =
-    Format.eprintf "SPARSE LEDGER GET: %s@."
+    Format.eprintf "SPARSE LEDGER GET @ NDX = %d: %s@." idx
       ( Caml.Printexc.get_callstack 10
       |> Caml.Printexc.raw_backtrace_to_string
       |> Str.(global_replace (regexp "\n") "@@@") ) ;
@@ -231,6 +239,11 @@ end = struct
     go (depth - 1) tree
 
   let set_exn (t : t) idx acct =
+    Format.eprintf "SPARSE LEDGER SET @ NDX = %d ACCOUNT = %s: %s@." idx
+      (Account.to_yojson acct |> Yojson.Safe.to_string)
+      ( Caml.Printexc.get_callstack 10
+      |> Caml.Printexc.raw_backtrace_to_string
+      |> Str.(global_replace (regexp "\n") "@@@") ) ;
     let rec go i tree =
       match (i < 0, tree) with
       | true, Tree.Account _ ->
