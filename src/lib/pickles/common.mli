@@ -46,7 +46,6 @@ val ft_comm :
        ( 'd
        , 'e
        , 'b
-       , 'g
        , 'f
        , 'bool )
        Import.Types.Wrap.Proof_state.Deferred_values.Plonk.In_circuit.t
@@ -191,8 +190,6 @@ val tock_public_input_of_statement :
      ( Limb_vector.Challenge.Constant.t
      , Limb_vector.Challenge.Constant.t Composition_types.Scalar_challenge.t
      , Impls.Wrap.Other_field.Constant.t Pickles_types.Shifted_value.Type1.t
-     , Impls.Wrap.Other_field.Constant.t Pickles_types.Shifted_value.Type1.t
-       option
      , Limb_vector.Challenge.Constant.t Composition_types.Scalar_challenge.t
        Composition_types.Wrap.Proof_state.Deferred_values.Plonk.In_circuit
        .Lookup
@@ -222,8 +219,6 @@ val tock_unpadded_public_input_of_statement :
      ( Limb_vector.Challenge.Constant.t
      , Limb_vector.Challenge.Constant.t Composition_types.Scalar_challenge.t
      , Impls.Wrap.Other_field.Constant.t Pickles_types.Shifted_value.Type1.t
-     , Impls.Wrap.Other_field.Constant.t Pickles_types.Shifted_value.Type1.t
-       option
      , Limb_vector.Challenge.Constant.t Composition_types.Scalar_challenge.t
        Composition_types.Wrap.Proof_state.Deferred_values.Plonk.In_circuit
        .Lookup

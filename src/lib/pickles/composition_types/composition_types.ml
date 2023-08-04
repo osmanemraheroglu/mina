@@ -96,20 +96,11 @@ module Wrap = struct
                 ~value_of_hlist:of_hlist [ scalar_challenge ]
           end
 
-          [@@@warning "-27"]
-
           (** All scalar values deferred by a verifier circuit.
               We expose them so the next guy (who can do scalar arithmetic) can check that they
               were computed correctly from the evaluations in the proof and the challenges.
           *)
-          type ( 'challenge
-               , 'scalar_challenge
-               , 'fp
-               , 'fp_opt
-               (* FIXME: 'fp_opt is an unused type quantifier *)
-               , 'lookup_opt
-               , 'bool )
-               t =
+          type ('challenge, 'scalar_challenge, 'fp, 'lookup_opt, 'bool) t =
             { alpha : 'scalar_challenge
             ; beta : 'challenge
             ; gamma : 'challenge
@@ -185,15 +176,10 @@ module Wrap = struct
               ~value_to_hlist:to_hlist ~value_of_hlist:of_hlist
         end
 
-        let to_minimal (type challenge scalar_challenge fp fp_opt lookup_opt)
+        let to_minimal (type challenge scalar_challenge fp lookup_opt)
             (t :
-              ( challenge
-              , scalar_challenge
-              , fp
-              , fp_opt
-              , lookup_opt
-              , 'bool )
-              In_circuit.t )
+              (challenge, scalar_challenge, fp, lookup_opt, 'bool) In_circuit.t
+              )
             ~(to_option :
                lookup_opt -> scalar_challenge In_circuit.Lookup.t option ) :
             (challenge, scalar_challenge, 'bool) Minimal.t =
@@ -273,22 +259,17 @@ module Wrap = struct
       [@@deriving sexp, compare, yojson, hlist, hash, equal]
 
       module Minimal = struct
-        [@@@warning "-27"]
-
         [%%versioned
         module Stable = struct
           module V1 = struct
-            (* FIXME: 'fp is an unused polymorphic quantifier here *)
             type ( 'challenge
                  , 'scalar_challenge
-                 , 'fp
                  , 'bool
                  , 'bulletproof_challenges
                  , 'branch_data )
                  t =
                   ( 'challenge
                   , 'scalar_challenge
-                  , 'fp
                   , 'bool
                   , 'bulletproof_challenges
                   , 'branch_data )
@@ -337,7 +318,6 @@ module Wrap = struct
         type ( 'challenge
              , 'scalar_challenge
              , 'fp
-             , 'fp_opt
              , 'lookup_opt
              , 'bulletproof_challenges
              , 'branch_data
@@ -346,7 +326,6 @@ module Wrap = struct
           ( ( 'challenge
             , 'scalar_challenge
             , 'fp
-            , 'fp_opt
             , 'lookup_opt
             , 'bool )
             Plonk.In_circuit.t
@@ -471,7 +450,6 @@ module Wrap = struct
         module V1 = struct
           type ( 'challenge
                , 'scalar_challenge
-               , 'fp
                , 'bool
                , 'messages_for_next_wrap_proof
                , 'digest
@@ -480,7 +458,6 @@ module Wrap = struct
                t =
                 ( 'challenge
                 , 'scalar_challenge
-                , 'fp
                 , 'bool
                 , 'messages_for_next_wrap_proof
                 , 'digest
@@ -493,7 +470,6 @@ module Wrap = struct
             { deferred_values :
                 ( 'challenge
                 , 'scalar_challenge
-                , 'fp
                 , 'bool
                 , 'bp_chals
                 , 'index )
@@ -512,7 +488,6 @@ module Wrap = struct
       type ( 'challenge
            , 'scalar_challenge
            , 'fp
-           , 'fp_opt
            , 'lookup_opt
            , 'bool
            , 'messages_for_next_wrap_proof
@@ -523,7 +498,6 @@ module Wrap = struct
         ( ( 'challenge
           , 'scalar_challenge
           , 'fp
-          , 'fp_opt
           , 'lookup_opt
           , 'bool )
           Deferred_values.Plonk.In_circuit.t
@@ -718,7 +692,6 @@ module Wrap = struct
         module V1 = struct
           type ( 'challenge
                , 'scalar_challenge
-               , 'fp
                , 'bool
                , 'messages_for_next_wrap_proof
                , 'digest
@@ -728,7 +701,6 @@ module Wrap = struct
                t =
                 ( 'challenge
                 , 'scalar_challenge
-                , 'fp
                 , 'bool
                 , 'messages_for_next_wrap_proof
                 , 'digest
@@ -741,7 +713,6 @@ module Wrap = struct
             { proof_state :
                 ( 'challenge
                 , 'scalar_challenge
-                , 'fp
                 , 'bool
                 , 'messages_for_next_wrap_proof
                 , 'digest
@@ -759,7 +730,6 @@ module Wrap = struct
       type ( 'challenge
            , 'scalar_challenge
            , 'fp
-           , 'fp_opt
            , 'lookup_opt
            , 'bool
            , 'messages_for_next_wrap_proof
@@ -771,7 +741,6 @@ module Wrap = struct
         ( ( 'challenge
           , 'scalar_challenge
           , 'fp
-          , 'fp_opt
           , 'lookup_opt
           , 'bool )
           Proof_state.Deferred_values.Plonk.In_circuit.t

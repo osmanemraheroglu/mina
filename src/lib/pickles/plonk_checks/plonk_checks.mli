@@ -117,7 +117,6 @@ module Make (Shifted_value : Pickles_types.Shifted_value.S) (_ : Scalars.S) : si
     -> ( 't
        , 't
        , 't Shifted_value.t
-       , ('t Shifted_value.t, 'b) Pickles_types.Plonk_types.Opt.t
        , ( 't
            Composition_types.Wrap.Proof_state.Deferred_values.Plonk.In_circuit
            .Lookup
@@ -134,9 +133,6 @@ module Make (Shifted_value : Pickles_types.Shifted_value.S) (_ : Scalars.S) : si
     -> ( 't Snarky_backendless.Cvar.t
        , 't Snarky_backendless.Cvar.t
        , 't Snarky_backendless.Cvar.t Shifted_value.t
-       , ( 't Snarky_backendless.Cvar.t Shifted_value.t
-         , 't Snarky_backendless.Cvar.t Snarky_backendless.Boolean.t )
-         Pickles_types.Plonk_types.Opt.t
        , ( 't Snarky_backendless.Cvar.t
            Composition_types.Wrap.Proof_state.Deferred_values.Plonk.In_circuit
            .Lookup

@@ -83,7 +83,6 @@ type deferred_values_and_hints =
       ( ( Challenge.Constant.t
         , scalar_challenge_constant
         , Backend.Tick.Field.t Pickles_types.Shifted_value.Type1.t
-        , (Tick.Field.t Shifted_value.Type1.t, bool) Opt.t
         , ( scalar_challenge_constant Deferred_values.Plonk.In_circuit.Lookup.t
           , bool )
           Opt.t

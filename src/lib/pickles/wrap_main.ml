@@ -107,7 +107,6 @@ let wrap_main
           , _
           , _
           , _
-          , _
           , _ )
           Types.Wrap.Statement.In_circuit.t
        -> unit ) =
@@ -145,7 +144,6 @@ let wrap_main
         ( _
         , _
         , _ Shifted_value.Type1.t
-        , _
         , _
         , _
         , _
