@@ -96,6 +96,8 @@ module Wrap = struct
                 ~value_of_hlist:of_hlist [ scalar_challenge ]
           end
 
+          [@@@warning "-27"]
+
           (** All scalar values deferred by a verifier circuit.
               We expose them so the next guy (who can do scalar arithmetic) can check that they
               were computed correctly from the evaluations in the proof and the challenges.
@@ -104,6 +106,7 @@ module Wrap = struct
                , 'scalar_challenge
                , 'fp
                , 'fp_opt
+               (* FIXME: 'fp_opt is an unused type quantifier *)
                , 'lookup_opt
                , 'bool )
                t =
@@ -270,11 +273,11 @@ module Wrap = struct
       [@@deriving sexp, compare, yojson, hlist, hash, equal]
 
       module Minimal = struct
+        [@@@warning "-27"]
+
         [%%versioned
         module Stable = struct
           module V1 = struct
-            [@@@warning "-27"]
-
             (* FIXME: 'fp is an unused polymorphic quantifier here *)
             type ( 'challenge
                  , 'scalar_challenge
