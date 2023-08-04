@@ -145,7 +145,6 @@ module Wrap : sig
 
           val typ :
                'f Spec.impl
-            -> dummy_scalar:'a
             -> dummy_scalar_challenge:'b Scalar_challenge.t
             -> challenge:
                  ( 'c
@@ -348,7 +347,6 @@ module Wrap : sig
 
         val typ :
              (module Snarky_backendless.Snark_intf.Run with type field = 'f)
-          -> dummy_scalar:'a
           -> dummy_scalar_challenge:'b Scalar_challenge.t
           -> challenge:
                ( 'c
@@ -600,7 +598,6 @@ module Wrap : sig
 
       val typ :
            (module Snarky_backendless.Snark_intf.Run with type field = 'f)
-        -> dummy_scalar:'a
         -> dummy_scalar_challenge:'b Scalar_challenge.t
         -> challenge:
              ( 'c
