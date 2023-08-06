@@ -5,6 +5,7 @@ let Cmd = ../../Lib/Cmds.dhall
 let S = ../../Lib/SelectFiles.dhall
 
 let Pipeline = ../../Pipeline/Dsl.dhall
+let PipelineStage = ../../Pipeline/Stage.dhall
 let JobSpec = ../../Pipeline/JobSpec.dhall
 
 let Command = ../../Command/Base.dhall
@@ -28,7 +29,8 @@ Pipeline.build
       JobSpec::{
         dirtyWhen = dirtyWhen,
         path = "Test",
-        name = "RosettaIntegrationTests"
+        name = "RosettaIntegrationTests",
+        stage = PipelineStage.Type.Stage2
       }
     , steps = [
       Command.build

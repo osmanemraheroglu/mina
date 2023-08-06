@@ -5,6 +5,8 @@ let S = ../../Lib/SelectFiles.dhall
 let D = S.PathPattern
 
 let Pipeline = ../../Pipeline/Dsl.dhall
+let PipelineStage = ../../Pipeline/Stage.dhall
+
 let JobSpec = ../../Pipeline/JobSpec.dhall
 
 let Command = ../../Command/Base.dhall
@@ -56,7 +58,8 @@ Pipeline.build
       JobSpec::{
         dirtyWhen = unitDirtyWhen,
         path = "Test",
-        name = "SingleNodeTest"
+        name = "SingleNodeTest",
+        stage = PipelineStage.Type.Stage2
       },
     steps = [
       buildTestCmd "dev" "src/test/command_line_tests/command_line_tests.exe" Size.XLarge

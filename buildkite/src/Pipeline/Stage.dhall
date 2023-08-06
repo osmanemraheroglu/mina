@@ -29,10 +29,19 @@ let capitalName = \(stage : Stage) ->
     , TearDown = "TearDown"
   } stage
 
+let lowerName = \(stage : Stage) ->
+  merge {
+    Stage1 = "stage1"
+    , Stage2 = "stage2"
+    , TearDown = "tearDown"
+  } stage
+
+
 in
 { 
   Type = Stage,
   capitalName = capitalName,
+  lowerName = lowerName,
   toNatural = toNatural,
   equal = equal
 }

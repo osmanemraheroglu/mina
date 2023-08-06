@@ -27,5 +27,5 @@ in
     Type = Mode,
     capitalName = capitalName,
     toNatural = toNatural,
-    equal = equal,
+    equal = equal
 }

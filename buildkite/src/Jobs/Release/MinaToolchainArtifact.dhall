@@ -4,6 +4,7 @@ let Cmd = ../../Lib/Cmds.dhall
 let S = ../../Lib/SelectFiles.dhall
 
 let Pipeline = ../../Pipeline/Dsl.dhall
+let PipelineStage = ../../Pipeline/Stage.dhall
 let JobSpec = ../../Pipeline/JobSpec.dhall
 
 let Command = ../../Command/Base.dhall
@@ -28,7 +29,9 @@ Pipeline.build
           S.strictlyEnd (S.contains "rust-toolchain.toml")
         ],
         path = "Release",
-        name = "MinaToolchainArtifact"
+        name = "MinaToolchainArtifact",
+        stage = PipelineStage.Type.Stage2
+        
       },
     steps = [
 

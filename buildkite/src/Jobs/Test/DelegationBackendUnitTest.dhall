@@ -4,6 +4,8 @@ let Cmd = ../../Lib/Cmds.dhall
 let S = ../../Lib/SelectFiles.dhall
 
 let Pipeline = ../../Pipeline/Dsl.dhall
+let PipelineStage = ../../Pipeline/Stage.dhall
+
 let JobSpec = ../../Pipeline/JobSpec.dhall
 
 let Command = ../../Command/Base.dhall
@@ -22,7 +24,8 @@ Pipeline.build
           S.exactly "buildkite/src/Jobs/Test/DelegationBackendUnitTest" "dhall"
         ],
         path = "Test",
-        name = "DelegationBackendUnitTest"
+        name = "DelegationBackendUnitTest",
+        stage = PipelineStage.Type.Stage2
       },
     steps = [
       Command.build

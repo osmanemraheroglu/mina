@@ -4,6 +4,7 @@ let Cmd = ../../Lib/Cmds.dhall
 let S = ../../Lib/SelectFiles.dhall
 
 let Pipeline = ../../Pipeline/Dsl.dhall
+let PipelineStage = ../../Pipeline/Stage.dhall
 let JobSpec = ../../Pipeline/JobSpec.dhall
 
 let Command = ../../Command/Base.dhall
@@ -23,7 +24,8 @@ Pipeline.build
           S.exactly "buildkite/src/Jobs/Test/Libp2pUnitTest" "dhall"
         ],
         path = "Test",
-        name = "Libp2pUnitTest"
+        name = "Libp2pUnitTest",
+        stage = PipelineStage.Type.Stage2
       },
     steps = [
       Command.build

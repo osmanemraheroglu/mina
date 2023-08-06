@@ -5,6 +5,8 @@ let S = ../Lib/SelectFiles.dhall
 let D = S.PathPattern
 
 let Pipeline = ../Pipeline/Dsl.dhall
+let PipelineStage = ../Pipeline/Stage.dhall
+
 let JobSpec = ../Pipeline/JobSpec.dhall
 
 let Command = ./Base.dhall
@@ -22,7 +24,8 @@ let pipeline : DebianVersions.DebVersion -> Pipeline.Config.Type = \(debVersion 
         JobSpec::{
           dirtyWhen = DebianVersions.dirtyWhen debVersion,
           path = "Release",
-          name = "MinaArtifact${DebianVersions.capitalName debVersion}"
+          name = "MinaArtifact${DebianVersions.capitalName debVersion}",
+          stage = PipelineStage.Type.Stage2
         },
       steps = [
         Libp2p.step debVersion,
@@ -108,6 +111,4 @@ let pipeline : DebianVersions.DebVersion -> Pipeline.Config.Type = \(debVersion 
 in
 {
   bullseye  = pipeline DebianVersions.DebVersion.Bullseye
-  , buster  = pipeline DebianVersions.DebVersion.Buster
-  , focal   = pipeline DebianVersions.DebVersion.Focal
 }

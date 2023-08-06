@@ -65,24 +65,18 @@ let prefixCommands = [
   Cmd.run "./buildkite/scripts/generate-diff.sh > _computed_diff.txt"
 ]
 
-let stablePipelineCommands:  List Cmd.Type  = 
-  let jobs = jobsByMode jobs PipelineMode.Type.Stable
-    in prefixCommands
-    # (stagedCommands jobs PipelineStage.Type.Stage1)
-    # (stagedCommands jobs PipelineStage.Type.Stage2)
-    # [Cmd.wait]
-    # (stagedCommands jobs PipelineStage.Type.TearDown)
-  
-let pullRequestPipelineCommands:  List Cmd.Type = 
-  let jobs = jobsByMode jobs PipelineMode.Type.PullRequest
-    in prefixCommands
-    # (stagedCommands jobs PipelineStage.Type.Stage1) 
-    # [Cmd.wait]
-    # (stagedCommands jobs PipelineStage.Type.Stage2)
-    # [Cmd.wait]
-    # (stagedCommands jobs PipelineStage.Type.TearDown)
+let commands: PipelineStage.Type -> PipelineMode.Type -> List Cmd.Type  =  \(stage: PipelineStage.Type) -> \(mode: PipelineMode.Type) ->
+  let jobs = jobsByMode jobs mode in
+  merge {
+    PullRequest = prefixCommands
+        # (stagedCommands jobs stage),
+    Stable = prefixCommands
+        # (stagedCommands jobs stage)
+  } mode
 
-let pipeline:  List Cmd.Type -> Pipeline.CompoundType = \(commands : List Cmd.Type) -> 
+in
+(
+  \(args : { stage : PipelineStage.Type, mode: PipelineMode.Type}) ->
   Pipeline.build Pipeline.Config::{
     spec = JobSpec::{
       name = "monorepo-triage",
@@ -92,9 +86,9 @@ let pipeline:  List Cmd.Type -> Pipeline.CompoundType = \(commands : List Cmd.Ty
     steps = [
     Command.build
       Command.Config::{
-        commands = commands,
-        label = "Monorepo triage",
-        key = "cmds",
+        commands = commands args.stage args.mode,
+        label = "Monorepo triage ${PipelineStage.capitalName args.stage}",
+        key = "cmds-${PipelineStage.lowerName args.stage}",
         target = Size.Small,
         docker = Some Docker::{
           image = (./Constants/ContainerImages.dhall).toolchainBase,
@@ -103,9 +97,4 @@ let pipeline:  List Cmd.Type -> Pipeline.CompoundType = \(commands : List Cmd.Ty
       }
     ]
   }
-  
-in 
-{
-  stable = pipeline stablePipelineCommands,
-  pullRequest = pipeline pullRequestPipelineCommands
-}
+) : { stage : PipelineStage.Type, mode: PipelineMode.Type } -> Pipeline.CompoundType
