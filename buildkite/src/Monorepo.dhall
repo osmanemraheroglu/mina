@@ -73,7 +73,7 @@ in
     steps = [
     Command.build
       Command.Config::{
-        commands = commands args.stage args.mode,
+        commands = prefixCommands # (commands args.stage args.mode),
         label = "Monorepo triage ${PipelineStage.capitalName args.stage}",
         key = "cmds-${PipelineStage.lowerName args.stage}",
         target = Size.Small,
