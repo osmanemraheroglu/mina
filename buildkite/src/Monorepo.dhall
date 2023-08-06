@@ -1,5 +1,7 @@
 let Prelude = ./External/Prelude.dhall
 let List/map = Prelude.List.map
+let List/filter = Prelude.List.filter
+
 
 let SelectFiles = ./Lib/SelectFiles.dhall
 let Cmd = ./Lib/Cmds.dhall
@@ -19,46 +21,7 @@ let jobs : List JobSpec.Type =
     JobSpec.Type
     (\(composite: Pipeline.CompoundType) -> composite.spec)
     ./gen/Jobs.dhall
-
-let jobsByStage: List JobSpec.Type -> PipelineStage.Type -> List JobSpec.Type  = \(jobs: List JobSpec.Type) -> \(stage: PipelineStage.Type) -> 
-  Prelude.List.filter 
-  JobSpec.Type 
-  (\(job: JobSpec.Type) ->  
-      PipelineStage.equal job.stage stage) 
-  jobs
-
-let jobsByMode: List JobSpec.Type -> PipelineMode.Type -> List JobSpec.Type = \(jobs: List JobSpec.Type) -> \(mode: PipelineMode.Type) ->
-  merge {
-    PullRequest = Prelude.List.filter 
-                    JobSpec.Type 
-                    (\(job: JobSpec.Type) ->  
-                        PipelineMode.equal job.mode mode) 
-                    jobs, 
-    Stable = jobs
-  } mode
-
--- Run a job if we touched a dirty path
-let makeCommand : JobSpec.Type -> Cmd.Type = \(job : JobSpec.Type) ->
-  let dirtyWhen = SelectFiles.compile job.dirtyWhen
-  let trigger = triggerCommand "src/Jobs/${job.path}/${job.name}.dhall"
-  let pipelineHandlers = {
-    PullRequest = ''
-      if (cat _computed_diff.txt | egrep -q '${dirtyWhen}'); then
-        echo "Triggering ${job.name} for reason:"
-        cat _computed_diff.txt | egrep '${dirtyWhen}'
-        ${Cmd.format trigger}
-      fi
-    '',
-    Stable = ''
-      echo "Triggering ${job.name} because this is a stable buildkite run"
-      ${Cmd.format trigger}
-    ''
-  }
-  in Cmd.quietly (merge pipelineHandlers job.mode)
-
-let stagedCommands: List JobSpec.Type -> PipelineStage.Type -> List Cmd.Type = \(jobs: List JobSpec.Type) -> \(stage: PipelineStage.Type) -> 
-  Prelude.List.map JobSpec.Type Cmd.Type makeCommand (jobsByStage jobs stage)
-
+  
 let prefixCommands = [
   Cmd.run "git config --global http.sslCAInfo /etc/ssl/certs/ca-bundle.crt", -- Tell git where to find certs for https connections
   Cmd.run "git fetch origin", -- Freshen the cache
@@ -66,13 +29,37 @@ let prefixCommands = [
 ]
 
 let commands: PipelineStage.Type -> PipelineMode.Type -> List Cmd.Type  =  \(stage: PipelineStage.Type) -> \(mode: PipelineMode.Type) ->
-  let jobs = jobsByMode jobs mode in
-  merge {
-    PullRequest = prefixCommands
-        # (stagedCommands jobs stage),
-    Stable = prefixCommands
-        # (stagedCommands jobs stage)
-  } mode
+  Prelude.List.map 
+    JobSpec.Type 
+    Cmd.Type 
+    (\(job: JobSpec.Type) ->
+      let job_mode = PipelineMode.lowerName job.mode
+      let job_stage = PipelineStage.lowerName job.stage
+      let target_mode = PipelineMode.lowerName mode
+      let target_stage = PipelineStage.lowerName stage
+
+      let dirtyWhen = SelectFiles.compile job.dirtyWhen
+      let trigger = triggerCommand "src/Jobs/${job.path}/${job.name}.dhall"
+      let pipelineHandlers = {
+        PullRequest = ''
+          if [ "${job_mode}" == "${target_mode}" ] && [ "${job_stage}" == "${target_stage}" ]; then
+            if (cat _computed_diff.txt | egrep -q '${dirtyWhen}'); then
+              echo "Triggering ${job.name} for reason:"
+              cat _computed_diff.txt | egrep '${dirtyWhen}'
+              ${Cmd.format trigger}
+            fi 
+          fi
+        '',
+        Stable = ''
+          if [ "${job_mode}" == "${target_mode}" ] && [ "${job_stage}" == "${target_stage}" ]; then
+            echo "Triggering ${job.name} because this is a stable buildkite run"
+            ${Cmd.format trigger}
+          fi
+        ''
+      }
+      in Cmd.quietly (merge pipelineHandlers job.mode)
+    ) 
+    jobs
 
 in
 (

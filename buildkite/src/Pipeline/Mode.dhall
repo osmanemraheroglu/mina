@@ -13,6 +13,14 @@ let capitalName = \(pipelineMode : Mode) ->
     , Stable = "Stable"
   } pipelineMode
 
+
+let lowerName = \(pipelineMode : Mode) ->
+  merge {
+    PullRequest = "pullRequest"
+    , Stable = "stable"
+  } pipelineMode
+
+
 let toNatural: Mode -> Natural = \(mode: Mode) -> 
   merge {
     PullRequest = 1
@@ -26,6 +34,7 @@ in
 { 
     Type = Mode,
     capitalName = capitalName,
+    lowerName = lowerName,
     toNatural = toNatural,
     equal = equal
 }
